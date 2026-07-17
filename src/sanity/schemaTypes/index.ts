@@ -7,6 +7,7 @@ import { galleryImage } from "./galleryImage";
 import { faq } from "./faq";
 import { siteSettings } from "./siteSettings";
 import { heroContent } from "./heroContent";
+import { whyJoinItem } from "./whyJoinItem";
 
 /**
  * Semua schema tipe konten (Divisi, Prestasi, Tim, Event, dst) didaftarkan
@@ -22,5 +23,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     faq,
     siteSettings,
     heroContent,
+    whyJoinItem,
   ],
 };
