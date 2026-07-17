@@ -1,0 +1,158 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { Trophy, Award, Globe2, MapPin, Flag, ArrowRight } from "lucide-react";
+import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import type { AchievementItem } from "@/types";
+
+interface AchievementsProps {
+  achievements: AchievementItem[];
+}
+
+const levelStyles: Record<AchievementItem["level"], { chip: string; icon: typeof Flag }> = {
+  Regional: { chip: "border-blue/20 bg-blue/10 text-blue", icon: MapPin },
+  National: { chip: "border-primary/20 bg-primary/10 text-primary", icon: Flag },
+  International: { chip: "border-accent/20 bg-accent/10 text-accent", icon: Globe2 },
+};
+
+export function Achievements({ achievements }: AchievementsProps) {
+  // Stats reflect the FULL history, even though only highlights render below.
+  const total = achievements.length;
+  const international = achievements.filter((a) => a.level === "International").length;
+  const national = achievements.filter((a) => a.level === "National").length;
+  const regional = achievements.filter((a) => a.level === "Regional").length;
+  const earliestYear = achievements.length
+    ? Math.min(...achievements.map((a) => a.year))
+    : null;
+
+  const summary = [
+    { id: "total", label: "Total Prestasi", value: total, suffix: "" },
+    { id: "international", label: "Internasional", value: international, suffix: "" },
+    { id: "national", label: "Nasional", value: national, suffix: "" },
+    { id: "regional", label: "Regional", value: regional, suffix: "" },
+  ];
+
+  const featured = achievements
+    .filter((a) => a.featured)
+    .sort((a, b) => b.year - a.year);
+
+  return (
+    <section className="relative px-6 py-24 sm:px-10 lg:px-16">
+      <div className="pointer-events-none absolute right-0 top-0 -z-10 h-[460px] w-[460px] rounded-full bg-accent/10 blur-[140px]" />
+
+      <div className="mx-auto max-w-7xl">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mx-auto max-w-2xl text-center"
+        >
+          <div className="glass mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium tracking-wide text-accent">
+            <Trophy className="h-3.5 w-3.5" />
+            Prestasi Kami
+          </div>
+          <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
+            Bukti Nyata <span className="text-gradient">Kerja Keras Anggota</span>
+          </h2>
+          <p className="mt-4 text-base text-slate-400">
+            {earliestYear
+              ? `Sejak ${earliestYear}, TSG konsisten membawa pulang penghargaan dari tingkat kota hingga nasional.`
+              : "TSG konsisten membawa pulang penghargaan dari tingkat kota hingga nasional."}
+          </p>
+        </motion.div>
+
+        {/* Summary counters — computed from the full 16-item history */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="glass mx-auto mt-12 grid max-w-3xl grid-cols-2 gap-6 rounded-2xl border border-white/[0.08] p-8 sm:grid-cols-4"
+        >
+          {summary.map((item) => (
+            <div key={item.id} className="text-center">
+              <div className="font-display text-3xl font-bold text-white">
+                <AnimatedCounter value={item.value} suffix={item.suffix} />
+              </div>
+              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                {item.label}
+              </p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Featured highlights only — full list lives on the detail page */}
+        <div className="mt-14 flex flex-wrap items-stretch justify-center gap-5">
+          {featured.map((item, index) => {
+            const style = levelStyles[item.level];
+            return (
+              <div
+                key={item.id}
+                className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.834rem)]"
+              >
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.5, delay: index * 0.06 }}
+                  whileHover={{ y: -4 }}
+                  className="group h-full"
+                >
+                  <motion.div
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="glass relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] p-6 transition-colors duration-200 group-hover:border-white/20"
+                  >
+                    <div className="pointer-events-none absolute inset-0 -z-10 bg-white/5 opacity-0 blur-2xl transition-opacity duration-200 ease-out group-hover:opacity-100" />
+
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white">
+                        <Award className="h-5 w-5" />
+                      </span>
+                      <span className="text-sm font-semibold text-slate-500">
+                        {item.year}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-4 font-display text-base font-semibold leading-snug text-white">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm text-slate-500">{item.event}</p>
+
+                    <span
+                      className={cn(
+                        "mt-auto inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 pt-4 text-[11px] font-medium",
+                        style.chip
+                      )}
+                    >
+                      <style.icon className="h-3 w-3" />
+                      {item.level}
+                    </span>
+                  </motion.div>
+                </motion.div>
+              </div>
+            );
+          })}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mt-10 flex justify-center"
+        >
+          <Button
+            href="/about#achievements"
+            variant="secondary"
+            icon={<ArrowRight className="h-4 w-4" />}
+          >
+            Lihat Semua Prestasi
+          </Button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
