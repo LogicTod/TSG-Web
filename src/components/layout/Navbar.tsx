@@ -41,7 +41,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
       >
         <div
           className={cn(
-            "flex w-full max-w-6xl items-center justify-between rounded-2xl border border-white/[0.08] px-4 py-3 transition-all duration-500 sm:px-6",
+            "flex w-full max-w-6xl items-center justify-between rounded-2xl border border-white/[0.08] px-5 py-4 transition-all duration-500 sm:px-7",
             isScrolled
               ? "glass-strong shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)]"
               : "border-transparent bg-transparent"
@@ -50,17 +50,17 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
           {/* Logo */}
           <Link
             href="/"
-            className="group flex items-center gap-2.5"
+            className="group flex items-center gap-3"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             {logoUrl ? (
-              <span className="relative flex h-11 w-11 items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-lg" />
+              <span className="relative flex h-20 w-20 items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-xl" />
                 <Image
                   src={logoUrl}
                   alt={shortName}
-                  width={44}
-                  height={44}
+                  width={80}
+                  height={80}
                   className="h-full w-full object-contain"
                   priority
                 />
@@ -71,7 +71,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
                 <span className="absolute inset-0 -z-10 rounded-xl bg-primary/40 blur-lg" />
               </span>
             )}
-            <span className="font-display text-lg font-semibold tracking-tight text-white">
+            <span className="font-display text-xl font-semibold tracking-tight text-white">
               {shortName}
             </span>
           </Link>

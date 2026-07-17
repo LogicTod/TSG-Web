@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Sparkles } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { useMousePosition } from "@/hooks/useMousePosition";
 import { iconMap } from "@/lib/icon-map";
@@ -83,11 +82,7 @@ export function Hero({ content, divisions, foundedYear }: HeroProps) {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[3.4rem]"
           >
-            {content.headingLines.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
+            <span className="block">{content.heading}</span>
             <span className="text-gradient block">{content.highlightWord}</span>
           </motion.h1>
 
@@ -100,30 +95,12 @@ export function Hero({ content, divisions, foundedYear }: HeroProps) {
             {content.description}
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35 }}
-            className="mt-8 flex flex-wrap items-center gap-4"
-          >
-            <Button
-              href={content.primaryCta.href}
-              size="lg"
-              icon={<ArrowRight className="h-4 w-4" />}
-            >
-              {content.primaryCta.label}
-            </Button>
-            <Button href={content.secondaryCta.href} variant="secondary" size="lg">
-              {content.secondaryCta.label}
-            </Button>
-          </motion.div>
-
           {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            className="mt-14 grid grid-cols-2 gap-6 border-t border-white/[0.08] pt-8 sm:grid-cols-4"
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mt-10 grid grid-cols-2 gap-6 border-t border-white/[0.08] pt-8 sm:grid-cols-4"
           >
             {content.stats.map((stat) => (
               <div key={stat.id}>

@@ -16,6 +16,7 @@ import {
   getFAQs,
   getSiteSettings,
   getHeroContent,
+  getWhyJoinItems,
 } from "@/sanity/queries";
 
 // Selalu ambil data terbaru dari Sanity, jangan pakai cache halaman.
@@ -31,6 +32,7 @@ export default async function HomePage() {
     faqs,
     settings,
     heroContent,
+    whyJoinItems,
   ] = await Promise.all([
     getDivisions(),
     getAchievements(),
@@ -40,6 +42,7 @@ export default async function HomePage() {
     getFAQs(),
     getSiteSettings(),
     getHeroContent(),
+    getWhyJoinItems(),
   ]);
 
   return (
@@ -50,7 +53,7 @@ export default async function HomePage() {
         foundedYear={settings.foundedYear}
       />
       <Divisions divisions={divisions} />
-      <WhyJoin />
+      <WhyJoin items={whyJoinItems} />
       <Achievements achievements={achievements} />
       <GalleryPreview images={galleryImages} />
       <EventsPreview events={events} />

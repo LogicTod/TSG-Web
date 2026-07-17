@@ -1,6 +1,6 @@
 import { client } from "./client";
 import { urlForImage } from "./image";
-import type { Division, AchievementItem, TeamMember, EventItem, GalleryItem, FAQItem, SiteSettings, HeroContent } from "@/types";
+import type { Division, AchievementItem, TeamMember, EventItem, GalleryItem, FAQItem, SiteSettings, HeroContent, ProgramItem } from "@/types";
 import type { Image } from "sanity";
 
 interface SanityDivision {
@@ -289,26 +289,19 @@ interface SanityHeroStat {
 
 interface SanityHeroContent {
   eyebrow: string;
-  headingLine1: string;
-  headingLine2: string;
+  heading: string;
   headingHighlight: string;
   description: string;
-  primaryCtaLabel: string;
-  primaryCtaHref: string;
-  secondaryCtaLabel: string;
-  secondaryCtaHref: string;
   stats?: SanityHeroStat[];
 }
 
 // Dipakai HANYA kalau dokumen "Konten Hero" belum pernah di-Publish.
 const fallbackHeroContent: HeroContent = {
   eyebrow: "Robotic & Science Club",
-  headingLines: ["Generasi Muda Yang", "Inovatif & Kompetitif"],
+  heading: "Generasi Muda Yang Inovatif & Kompetitif",
   highlightWord: "Dalam Teknologi Robotik & Sains",
   description:
     "TSG membentuk generasi muda yang kreatif, inovatif, dan siap menghadapi perkembangan teknologi melalui pembelajaran, eksperimen, serta pengembangan proyek nyata.",
-  primaryCta: { label: "Gabung Sekarang", href: "/register" },
-  secondaryCta: { label: "Lihat Divisi", href: "/divisions" },
   stats: [
     { id: "members", label: "Anggota Aktif", value: 250, suffix: "+" },
     { id: "divisions", label: "Divisi", value: 4, suffix: "" },
@@ -324,8 +317,7 @@ const fallbackHeroContent: HeroContent = {
 export async function getHeroContent(): Promise<HeroContent> {
   const data = await client.fetch<SanityHeroContent | null>(
     `*[_type == "heroContent"][0] {
-      eyebrow, headingLine1, headingLine2, headingHighlight, description,
-      primaryCtaLabel, primaryCtaHref, secondaryCtaLabel, secondaryCtaHref, stats
+      eyebrow, heading, headingHighlight, description, stats
     }`
   );
 
@@ -333,11 +325,9 @@ export async function getHeroContent(): Promise<HeroContent> {
 
   return {
     eyebrow: data.eyebrow,
-    headingLines: [data.headingLine1, data.headingLine2],
+    heading: data.heading,
     highlightWord: data.headingHighlight,
     description: data.description,
-    primaryCta: { label: data.primaryCtaLabel, href: data.primaryCtaHref },
-    secondaryCta: { label: data.secondaryCtaLabel, href: data.secondaryCtaHref },
     stats: (data.stats ?? []).map((s, i) => ({
       id: `stat-${i}`,
       label: s.label,
@@ -345,4 +335,31 @@ export async function getHeroContent(): Promise<HeroContent> {
       suffix: s.suffix ?? "",
     })),
   };
+}
+
+interface SanityWhyJoinItem {
+  _id: string;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+/**
+ * Mengambil semua item "Kenapa Gabung TSG" yang sudah di-Publish,
+ * diurutkan berdasar field "order". `icon` tetap berupa teks di sini,
+ * diterjemahkan jadi komponen di WhyJoin.tsx (Client Component).
+ */
+export async function getWhyJoinItems(): Promise<ProgramItem[]> {
+  const data = await client.fetch<SanityWhyJoinItem[]>(
+    `*[_type == "whyJoinItem"] | order(order asc) {
+      _id, title, description, icon
+    }`
+  );
+
+  return data.map((item) => ({
+    id: item._id,
+    title: item.title,
+    description: item.description,
+    icon: item.icon,
+  }));
 }
