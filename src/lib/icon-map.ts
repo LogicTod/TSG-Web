@@ -1,4 +1,15 @@
-import { Bot, Cog, FlaskConical, Camera, type LucideIcon } from "lucide-react";
+import {
+  Bot,
+  Cog,
+  FlaskConical,
+  Camera,
+  Trophy,
+  HeartHandshake,
+  Briefcase,
+  Leaf,
+  GraduationCap,
+  type LucideIcon,
+} from "lucide-react";
 
 /**
  * Sanity hanya bisa menyimpan teks ("Bot", "Cog", dst), bukan komponen
@@ -11,4 +22,9 @@ export const iconMap: Record<string, LucideIcon> = {
   Cog,
   FlaskConical,
   Camera,
+  Trophy,
+  HeartHandshake,
+  Briefcase,
+  Leaf,
+  GraduationCap,
 };

@@ -51,7 +51,7 @@ export interface ProgramItem {
   id: string;
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: string;
 }
 
 export interface AchievementItem {
@@ -100,10 +100,8 @@ export interface FAQItem {
 
 export interface HeroContent {
   eyebrow: string;
-  headingLines: string[];
+  heading: string;
   highlightWord: string;
   description: string;
-  primaryCta: { label: string; href: string };
-  secondaryCta: { label: string; href: string };
   stats: Stat[];
 }
