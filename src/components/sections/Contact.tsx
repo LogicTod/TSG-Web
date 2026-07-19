@@ -27,7 +27,7 @@ export function Contact({ settings }: ContactProps) {
     settings.instagramUrl && {
       id: "instagram",
       label: "Instagram",
-      value: "@thesmartgeneration",
+      value: "@tsgbogor",
       href: settings.instagramUrl,
       icon: Send,
     },

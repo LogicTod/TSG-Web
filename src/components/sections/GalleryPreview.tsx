@@ -79,7 +79,7 @@ export function GalleryPreview({ images }: GalleryPreviewProps) {
           className="mt-10 flex justify-center"
         >
           <Button
-            href="/gallery"
+            href="https://sites.google.com/view/thesmartgeneration/gallery"
             variant="secondary"
             icon={<ArrowRight className="h-4 w-4" />}
           >
