@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { Calendar, MapPin, Clock, ArrowRight } from "lucide-react";
 import { useCountdown } from "@/hooks/useCountdown";
+import { Button } from "@/components/ui/Button";
 import type { EventItem } from "@/types";
 
 interface EventCardProps {
@@ -90,6 +91,17 @@ export function EventCard({ event, index }: EventCardProps) {
                   ? `${countdown.hours} jam ${countdown.minutes} menit lagi`
                   : `${countdown.days} hari ${countdown.hours} jam lagi`}
               </div>
+            )}
+
+            {event.cta && (
+              <Button
+                href={event.cta.href}
+                size="md"
+                className="mt-4 w-full justify-center"
+                icon={<ArrowRight className="h-4 w-4" />}
+              >
+                {event.cta.label}
+              </Button>
             )}
           </div>
         </div>
