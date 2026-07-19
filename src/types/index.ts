@@ -80,6 +80,8 @@ export interface EventItem {
   location: string;
   status: "upcoming" | "past";
   image: string;
+  imageWidth?: number;
+  imageHeight?: number;
   cta?: { label: string; href: string };
 }
 
