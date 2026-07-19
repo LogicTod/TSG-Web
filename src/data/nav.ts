@@ -10,7 +10,7 @@ export const navLinks: NavLink[] = [
   { label: "About", href: "https://sites.google.com/view/thesmartgeneration/about" },
   { label: "Divisions", href: "https://thesmartgeneration.vercel.app/divisions" },
   { label: "Gallery", href: "https://sites.google.com/view/thesmartgeneration/gallery" },
-  { label: "Events", href: "https://sites.google.com/view/thesmartgeneration/events" },
+  { label: "Events", href: "https://thesmartgeneration.vercel.app/events" },
   { label: "News", href: "https://sites.google.com/view/thesmartgeneration/news" },
   { label: "Team", href: "https://thesmartgeneration.vercel.app/team" },
   { label: "Contact", href: "https://sites.google.com/view/thesmartgeneration/contact" },
