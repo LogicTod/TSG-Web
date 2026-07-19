@@ -82,13 +82,33 @@ export interface EventItem {
   image: string;
 }
 
+export interface TeamCategory {
+  id: string;
+  name: string;
+  slug: string;
+  order: number;
+}
+
+export interface TeamAchievement {
+  icon: string;
+  title: string;
+}
+
+export type TeamBadge = "founder" | "developer" | "mentor" | "admin";
+
 export interface TeamMember {
   id: string;
   name: string;
+  fullName?: string;
+  nickname?: string;
+  birthDate?: string;
   role: string;
   division: string;
+  category: string;
   photo: string;
   socials: Partial<Record<"instagram" | "linkedin" | "email", string>>;
+  badge?: TeamBadge;
+  achievements: TeamAchievement[];
   featured?: boolean;
 }
 

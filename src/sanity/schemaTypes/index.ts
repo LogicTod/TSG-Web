@@ -2,6 +2,7 @@ import type { SchemaTypeDefinition } from "sanity";
 import { division } from "./division";
 import { achievement } from "./achievement";
 import { teamMember } from "./teamMember";
+import { teamCategory } from "./teamCategory";
 import { event } from "./event";
 import { galleryImage } from "./galleryImage";
 import { faq } from "./faq";
@@ -17,6 +18,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     division,
     achievement,
+    teamCategory,
     teamMember,
     event,
     galleryImage,
