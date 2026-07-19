@@ -7,11 +7,11 @@ import type { NavLink } from "@/types";
  */
 export const navLinks: NavLink[] = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "Divisions", href: "/divisions" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Events", href: "/events" },
-  { label: "News", href: "/news" },
-  { label: "Team", href: "/team" },
-  { label: "Contact", href: "/contact" },
+  { label: "About", href: "https://sites.google.com/view/thesmartgeneration/about" },
+  { label: "Divisions", href: "https://sites.google.com/view/thesmartgeneration/Divisions" },
+  { label: "Gallery", href: "https://sites.google.com/view/thesmartgeneration/gallery" },
+  { label: "Events", href: "https://sites.google.com/view/thesmartgeneration/events" },
+  { label: "News", href: "https://sites.google.com/view/thesmartgeneration/news" },
+  { label: "Team", href: "http://localhost:3000/team" },
+  { label: "Contact", href: "https://sites.google.com/view/thesmartgeneration/contact" },
 ];

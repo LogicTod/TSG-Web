@@ -1,6 +1,6 @@
 import { client } from "./client";
 import { urlForImage } from "./image";
-import type { Division, AchievementItem, TeamMember, EventItem, GalleryItem, FAQItem, SiteSettings, HeroContent, ProgramItem } from "@/types";
+import type { Division, AchievementItem, TeamMember, TeamBadge, TeamCategory, EventItem, GalleryItem, FAQItem, SiteSettings, HeroContent, ProgramItem } from "@/types";
 import type { Image } from "sanity";
 
 interface SanityDivision {
@@ -80,42 +80,89 @@ export async function getAchievements(): Promise<AchievementItem[]> {
   }));
 }
 
+interface SanityAchievementItem {
+  icon: Image;
+  title: string;
+}
+
 interface SanityTeamMember {
   _id: string;
   name: string;
+  fullName?: string;
+  nickname?: string;
+  birthDate?: string;
   role: string;
   division?: string;
+  category: string;
   photo: Image;
   instagram?: string;
   linkedin?: string;
   email?: string;
+  badge?: TeamBadge;
+  achievements?: SanityAchievementItem[];
   featured: boolean;
 }
 
 /**
  * Mengambil semua anggota tim yang sudah di-Publish, diurutkan berdasar
- * field "order". Foto diresolve jadi URL string di sini (server), sama
- * seperti logo divisi, supaya aman dikirim ke Client Component.
+ * field "order". Foto & icon prestasi diresolve jadi URL string di sini
+ * (server), sama seperti logo divisi, supaya aman dikirim ke Client
+ * Component.
  */
 export async function getTeamMembers(): Promise<TeamMember[]> {
   const data = await client.fetch<SanityTeamMember[]>(
     `*[_type == "teamMember"] | order(order asc) {
-      _id, name, role, division, photo, instagram, linkedin, email, featured
+      _id, name, nickname, birthDate, role, division,
+      "category": category->slug.current,
+      photo, instagram, linkedin, email, badge, achievements, featured
     }`
   );
 
   return data.map((item) => ({
     id: item._id,
     name: item.name,
+    fullName: item.name,
+    nickname: item.nickname,
+    birthDate: item.birthDate,
     role: item.role,
     division: item.division ?? "",
+    category: item.category ?? "",
     photo: urlForImage(item.photo).width(400).height(500).fit("crop").auto("format").url(),
     socials: {
       ...(item.instagram && { instagram: item.instagram }),
       ...(item.linkedin && { linkedin: item.linkedin }),
       ...(item.email && { email: `mailto:${item.email}` }),
     },
+    badge: item.badge,
+    achievements: (item.achievements ?? []).map((a) => ({
+      icon: urlForImage(a.icon).width(96).height(96).fit("max").auto("format").url(),
+      title: a.title,
+    })),
     featured: item.featured,
+  }));
+}
+
+interface SanityTeamCategory {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  order: number;
+}
+
+/**
+ * Mengambil semua kategori/generasi tim, diurutkan berdasar field
+ * "order". Dipakai untuk membangun tab filter di halaman /team.
+ */
+export async function getTeamCategories(): Promise<TeamCategory[]> {
+  const data = await client.fetch<SanityTeamCategory[]>(
+    `*[_type == "teamCategory"] | order(order asc) { _id, name, slug, order }`
+  );
+
+  return data.map((item) => ({
+    id: item._id,
+    name: item.name,
+    slug: item.slug?.current ?? "",
+    order: item.order,
   }));
 }
 
