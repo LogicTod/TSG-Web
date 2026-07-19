@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { CalendarClock, History } from "lucide-react";
+import { CalendarClock } from "lucide-react";
 import { getEvents } from "@/sanity/queries";
-import { EventCard } from "@/components/ui/EventCard";
-import { PastEventTimeline } from "@/components/events/PastEventTimeline";
+import { EventsPageClient } from "@/components/events/EventsPageClient";
 
 export const revalidate = 0;
 
@@ -37,44 +36,11 @@ export default async function EventsPage() {
             Semua <span className="text-gradient">Kegiatan Kami</span>
           </h1>
           <p className="mt-4 text-base text-slate-400">
-            Dari agenda yang akan datang sampai riwayat kegiatan yang sudah
-            berlalu.
+            Klik salah satu agenda untuk lihat detail lengkapnya.
           </p>
         </div>
 
-        {/* Upcoming events */}
-        <div className="mt-16">
-          <h2 className="font-display text-xl font-semibold text-white">
-            Agenda Mendatang
-          </h2>
-          {upcoming.length === 0 ? (
-            <p className="mt-6 text-sm text-slate-500">
-              Belum ada agenda mendatang saat ini.
-            </p>
-          ) : (
-            <div className="mt-8 flex flex-wrap items-stretch justify-center gap-6">
-              {upcoming.map((event, index) => (
-                <div
-                  key={event.id}
-                  className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
-                >
-                  <EventCard event={event} index={index} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Past events timeline */}
-        <div className="mt-24">
-          <div className="mb-8 flex items-center justify-center gap-2">
-            <History className="h-4 w-4 text-slate-500" />
-            <h2 className="font-display text-xl font-semibold text-white">
-              Event Sebelumnya
-            </h2>
-          </div>
-          <PastEventTimeline events={past} />
-        </div>
+        <EventsPageClient upcoming={upcoming} past={past} />
       </div>
     </div>
   );
