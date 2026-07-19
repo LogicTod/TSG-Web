@@ -41,21 +41,29 @@ export function EventModal({ event, onClose }: EventModalProps) {
           <X className="h-4 w-4" />
         </button>
 
-        {/* Poster -- object-contain, full poster visible, never cropped */}
+        {/* Poster -- ukuran kontainer mengikuti rasio asli poster, jadi
+            seluruh gambar selalu terlihat penuh, tidak gepeng/terpotong */}
         <motion.div
           layoutId={`event-image-${event.id}`}
-          className="relative flex max-h-[45vh] w-full items-center justify-center bg-black/30"
+          className="relative w-full bg-black/30"
+          style={{
+            aspectRatio:
+              event.imageWidth && event.imageHeight
+                ? `${event.imageWidth} / ${event.imageHeight}`
+                : "16 / 10",
+            maxHeight: "55vh",
+          }}
         >
           <Image
             src={event.image}
             alt={event.title}
-            width={900}
-            height={900}
-            className="max-h-[45vh] w-full object-contain"
+            fill
+            className="object-contain"
+            sizes="(max-width: 640px) 100vw, 640px"
           />
         </motion.div>
 
-        <div className="max-h-[42vh] overflow-y-auto p-6 sm:p-8">
+        <div className="max-h-[38vh] overflow-y-auto p-6 sm:p-8">
           {countdown && !countdown.isPast && (
             <span className="glass mb-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-accent">
               <Clock className="h-3.5 w-3.5" />
