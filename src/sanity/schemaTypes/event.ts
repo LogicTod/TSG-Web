@@ -40,6 +40,20 @@ export const event = defineType({
       type: "image",
       options: { hotspot: true },
     }),
+    defineField({
+      name: "ctaLabel",
+      title: "Teks Tombol (opsional)",
+      type: "string",
+      description:
+        'Isi kalau event ini butuh tombol aksi, contoh: "Daftar Sekarang", "Lihat Detail". Kosongkan kalau event ini cuma pemberitahuan info biasa (tanpa tombol).',
+    }),
+    defineField({
+      name: "ctaHref",
+      title: "Link Tombol (opsional)",
+      type: "url",
+      description:
+        "Wajib diisi kalau Teks Tombol di atas diisi. Bisa link WhatsApp, Google Form, atau halaman lain.",
+    }),
   ],
   orderings: [
     {
