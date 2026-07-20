@@ -3,7 +3,16 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const TOTAL_DURATION = 9000;
+const WORDS = [
+  { id: "together", text: "Together", delay: 0.3 },
+  { id: "wemake", text: "We Make", delay: 1.8 },
+  { id: "abetter", text: "A Better", delay: 3.3 },
+  { id: "future", text: "Future", delay: 4.8 },
+];
+
+const HOLD_AFTER_COMPLETE = 1800;
+const LAST_WORD_FINISH = 3000 + 1800;
+const TOTAL_DURATION = LAST_WORD_FINISH + HOLD_AFTER_COMPLETE;
 
 export function IntroLoader() {
   const [mounted, setMounted] = useState(false);
@@ -40,24 +49,6 @@ export function IntroLoader() {
 
   if (!mounted) return null;
 
-  const wordAnimation = (
-    delay: number
-  ) => ({
-    initial: {
-      opacity: 0,
-      y: 35,
-    },
-    animate: {
-      opacity: 1,
-      y: 0,
-    },
-    transition: {
-      delay,
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1] as const,
-    },
-  });
-
   return (
     <AnimatePresence>
       {show && (
@@ -69,9 +60,8 @@ export function IntroLoader() {
             duration: 1.4,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#020617]"
+          className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#020617]"
         >
-          {/* Background Glow */}
           <motion.div
             initial={{
               opacity: 0,
@@ -84,57 +74,97 @@ export function IntroLoader() {
             transition={{
               duration: 2.5,
             }}
-            className="absolute h-[340px] w-[340px] rounded-full bg-cyan-400/10 blur-[140px]"
+            className="absolute h-[280px] w-[280px] rounded-full bg-cyan-400/10 blur-[120px] sm:h-[340px] sm:w-[340px]"
           />
 
-          <div className="relative select-none">
-
-            <div className="text-center leading-none">
-
-              {/* ===================== */}
-              {/* BARIS PERTAMA */}
-              {/* ===================== */}
-
-              <div className="flex justify-center gap-5">
-
+          <div className="relative px-6 text-center">
+            <div
+              className="
+                font-display
+                font-bold
+                text-white
+                leading-[1.05]
+                text-[clamp(2rem,8vw,4.8rem)]
+              "
+            >
+              <div className="whitespace-nowrap">
                 <motion.span
-                  {...wordAnimation(0.4)}
-                  className="font-display text-5xl font-bold text-white sm:text-7xl"
+                  initial={{
+                    opacity: 0,
+                    y: 30,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    delay: WORDS[0].delay,
+                    duration: 1.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   Together
                 </motion.span>
 
-                <motion.span
-                  {...wordAnimation(2.2)}
-                  className="font-display text-5xl font-bold text-white sm:text-7xl"
+                {" "}
+                                <motion.span
+                  initial={{
+                    opacity: 0,
+                    y: 30,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    delay: WORDS[1].delay,
+                    duration: 1.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   We Make
                 </motion.span>
-
               </div>
 
-              {/* ===================== */}
-              {/* BARIS KEDUA */}
-              {/* ===================== */}
-
-              <div className="mt-6 flex justify-center gap-5">
-
+              <div className="mt-2 whitespace-nowrap sm:mt-4">
                 <motion.span
-                  {...wordAnimation(4.2)}
-                  className="font-display text-5xl font-bold text-white sm:text-7xl"
+                  initial={{
+                    opacity: 0,
+                    y: 30,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    delay: WORDS[2].delay,
+                    duration: 1.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   A Better
                 </motion.span>
 
+                {" "}
+
                 <motion.span
-                  {...wordAnimation(6.2)}
-                  className="font-display text-5xl font-bold text-white sm:text-7xl"
+                  initial={{
+                    opacity: 0,
+                    y: 30,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    delay: WORDS[3].delay,
+                    duration: 1.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   Future
                 </motion.span>
-
               </div>
-
             </div>
           </div>
         </motion.div>
