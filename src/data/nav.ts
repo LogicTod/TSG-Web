@@ -7,7 +7,7 @@ import type { NavLink } from "@/types";
  */
 export const navLinks: NavLink[] = [
   { label: "Home", href: "/" },
-  { label: "About", href: "https://sites.google.com/view/thesmartgeneration/about" },
+  { label: "About", href: "https://thesmartgeneration.vercel.app/about" },
   { label: "Divisions", href: "https://thesmartgeneration.vercel.app/divisions" },
   { label: "Gallery", href: "https://sites.google.com/view/thesmartgeneration/gallery" },
   { label: "Events", href: "https://thesmartgeneration.vercel.app/events" },
