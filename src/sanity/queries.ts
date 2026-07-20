@@ -1,6 +1,6 @@
 import { client } from "./client";
 import { urlForImage } from "./image";
-import type { Division, AchievementItem, TeamMember, TeamBadge, TeamCategory, EventItem, GalleryItem, FAQItem, SiteSettings, HeroContent, ProgramItem } from "@/types";
+import type { Division, AchievementItem, TeamMember, TeamBadge, TeamCategory, EventItem, GalleryItem, FAQItem, SiteSettings, HeroContent, ProgramItem, AboutContent } from "@/types";
 import type { Image } from "sanity";
 
 interface SanityDivision {
@@ -421,4 +421,36 @@ export async function getWhyJoinItems(): Promise<ProgramItem[]> {
     description: item.description,
     icon: item.icon,
   }));
+}
+
+interface SanityAboutContent {
+  vision: string;
+  missionItems: string[];
+}
+
+// Dipakai HANYA kalau dokumen "Konten About" belum pernah di-Publish --
+// isinya sesuai teks visi & misi asli TSG yang sudah dikonfirmasi.
+const fallbackAboutContent: AboutContent = {
+  vision:
+    "Menjadikan generasi muda yang inovatif dan kompetitif. Menjadikan The Smart Generation sebagai komunitas yang profesional dan kompeten dalam bidang teknologi elektronika, robotik, dan sains yang mampu bersaing dalam kancah nasional dan internasional.",
+  missionItems: [
+    "Mencetak generasi muda yang unggul dan berprestasi dalam bidang teknologi robotik dan sains.",
+    "Membentuk SDM ber-Imtaq melalui pendidikan dan pelatihan teknologi robotik dan sains yang berorientasi pada prestasi berkelanjutan terhadap kelestarian lingkungan hidup.",
+    "Menghasilkan SDM yang profesional dan berpikiran terbuka yang siap bersaing di dunia elektronika, robotik, dan sains.",
+    "Membangun dan mengimplementasikan nilai-nilai moral dan etika akademis.",
+    "Memajukan pendidikan di Indonesia melalui teknologi robotik dan sains.",
+  ],
+};
+
+export async function getAboutContent(): Promise<AboutContent> {
+  const data = await client.fetch<SanityAboutContent | null>(
+    `*[_type == "aboutContent"][0] { vision, missionItems }`
+  );
+
+  if (!data) return fallbackAboutContent;
+
+  return {
+    vision: data.vision,
+    missionItems: data.missionItems ?? [],
+  };
 }

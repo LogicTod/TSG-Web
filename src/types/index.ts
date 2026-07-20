@@ -128,3 +128,8 @@ export interface HeroContent {
   description: string;
   stats: Stat[];
 }
+
+export interface AboutContent {
+  vision: string;
+  missionItems: string[];
+}

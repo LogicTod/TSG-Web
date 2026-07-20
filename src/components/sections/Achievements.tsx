@@ -145,7 +145,7 @@ export function Achievements({ achievements }: AchievementsProps) {
           className="mt-10 flex justify-center"
         >
           <Button
-            href="https://sites.google.com/view/thesmartgeneration/about"
+            href="https://thesmartgeneration.vercel.app/about"
             variant="secondary"
             icon={<ArrowRight className="h-4 w-4" />}
           >
