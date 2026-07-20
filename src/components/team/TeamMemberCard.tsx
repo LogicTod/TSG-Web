@@ -31,52 +31,75 @@ export function TeamMemberCard({ member, index }: TeamMemberCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
-      className="relative h-full"
+      className="relative h-full rounded-2xl"
     >
-      {/* Pulsing colored glow behind the card -- only for badge holders */}
+      {/* Soft ambient glow behind the whole card -- badge holders only */}
       {badge && (
         <motion.div
-          className="pointer-events-none absolute -inset-1 -z-10 rounded-2xl blur-lg"
+          className="pointer-events-none absolute -inset-3 -z-10 rounded-3xl blur-xl"
           style={{ backgroundColor: `rgba(${badge.glowRgb},0.35)` }}
-          animate={{ opacity: [0.3, 0.65, 0.3] }}
+          animate={{ opacity: [0.3, 0.7, 0.3] }}
           transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
         />
       )}
 
+      {/* Rotating "aura" light sweeping around the border -- badge holders only */}
+      {badge && (
+        <div className="pointer-events-none absolute -inset-[2px] -z-10 overflow-hidden rounded-2xl">
+          <motion.div
+            className="absolute inset-[-100%] blur-[3px]"
+            style={{
+              background: `conic-gradient(from 0deg, transparent 0deg, rgba(${badge.glowRgb},0.95) 50deg, transparent 130deg, transparent 360deg)`,
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      )}
+
       <div
         className={cn(
-          "glass relative flex h-full flex-col overflow-hidden rounded-2xl border transition-colors duration-200",
-          badge ? cn("border-transparent ring-2", badge.ring) : "border-white/[0.08]"
+          "glass relative z-10 flex h-full flex-col overflow-hidden rounded-2xl border transition-colors duration-200",
+          badge ? "border-white/10" : "border-white/[0.08]"
         )}
       >
-        {/* Badge icon -- ALWAYS visible top-right, expanded or not */}
+        {/* Badge icon -- ALWAYS visible top-right, expanded or not.
+            IMPORTANT: the positioning wrapper is OUTSIDE Tooltip, so
+            Tooltip only handles the hover popup, not layout position. */}
         {badge && (
-          <Tooltip label={badge.label}>
-            <span
-              className={cn(
-                "absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full shadow-lg",
-                badge.iconBg
-              )}
-            >
-              <badge.icon className="h-4 w-4" strokeWidth={2.5} />
-            </span>
-          </Tooltip>
+          <span className="absolute right-3 top-3 z-20">
+            <Tooltip label={badge.label}>
+              <span
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-full shadow-lg",
+                  badge.iconBg
+                )}
+              >
+                <badge.icon className="h-4 w-4" strokeWidth={2.5} />
+              </span>
+            </Tooltip>
+          </span>
         )}
 
-        {/* Photo */}
-        <div className="relative aspect-[4/5] w-full overflow-hidden">
-          <Image
-            src={member.photo}
-            alt={member.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 50vw, 25vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
+        {/* Photo -- image itself is clipped/rounded by an inner wrapper,
+            NOT the outer one, so achievement icons hanging below the
+            photo edge are never cut off. */}
+        <div className="relative aspect-[4/5] w-full">
+          <div className="absolute inset-0 overflow-hidden">
+            <Image
+              src={member.photo}
+              alt={member.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 50vw, 25vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
+          </div>
 
-          {/* Achievement icons -- collapsed state: sit on the bottom edge of the photo */}
+          {/* Achievement icons -- collapsed state: sit on the bottom edge
+              of the photo. No longer clipped, and tooltip can pop up freely. */}
           {hasAchievements && !isExpanded && (
-            <div className="absolute -bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
+            <div className="absolute -bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1.5">
               {member.achievements.map((ach, i) => (
                 <motion.div key={i} layoutId={`ach-${member.id}-${i}`}>
                   <Tooltip label={ach.title}>

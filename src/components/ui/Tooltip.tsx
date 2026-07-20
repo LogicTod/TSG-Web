@@ -33,7 +33,7 @@ export function Tooltip({ label, children }: TooltipProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.92 }}
             transition={{ duration: 0.15 }}
-            className="glass-strong pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-medium text-white shadow-lg"
+            className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-xl"
           >
             {label}
           </motion.span>
