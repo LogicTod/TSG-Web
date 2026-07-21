@@ -36,7 +36,7 @@ export function EventsPageClient({ upcoming, past }: EventsPageClientProps) {
   return (
     <>
       <div className="mt-16">
-        <h2 className="font-display text-xl font-semibold text-white">
+        <h2 className="text-center font-display text-xl font-semibold text-white">
           Agenda Mendatang
         </h2>
         {upcoming.length === 0 ? (
