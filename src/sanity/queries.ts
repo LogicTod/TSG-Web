@@ -82,7 +82,7 @@ export async function getAchievements(): Promise<AchievementItem[]> {
 
 interface SanityAchievementItem {
   icon: Image;
-  title: string;
+  label: string;
 }
 
 interface SanityTeamMember {
@@ -137,7 +137,7 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
     badge: item.badge,
     achievements: (item.achievements ?? []).map((a) => ({
       icon: urlForImage(a.icon).width(96).height(96).fit("max").auto("format").url(),
-      title: a.title,
+      title: a.label,
     })),
     featured: item.featured,
   }));

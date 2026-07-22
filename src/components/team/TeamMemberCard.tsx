@@ -103,7 +103,9 @@ export function TeamMemberCard({ member, index }: TeamMemberCardProps) {
               {member.achievements.map((ach, i) => (
                 <Tooltip key={i} label={ach.title}>
                   <motion.span
-                    layoutId={`ach-${member.id}-${i}`}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: 0.1 + i * 0.05 }}
                     className="glass-strong flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-white/10"
                   >
                     <Image
@@ -191,7 +193,9 @@ export function TeamMemberCard({ member, index }: TeamMemberCardProps) {
                     {member.achievements.map((ach, i) => (
                       <Tooltip key={i} label={ach.title}>
                         <motion.span
-                          layoutId={`ach-${member.id}-${i}`}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3, delay: 0.05 + i * 0.05 }}
                           className="glass flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/10"
                         >
                           <Image
