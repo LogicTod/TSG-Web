@@ -57,30 +57,30 @@ export function TeamMemberCard({ member, index }: TeamMemberCardProps) {
         </div>
       )}
 
+      {/* Badge icon -- ALWAYS visible top-right, expanded or not.
+          Sits OUTSIDE the overflow-hidden card (as a sibling), otherwise
+          its tooltip gets clipped by the card's own rounded-corner mask. */}
+      {badge && (
+        <span className="absolute right-3 top-3 z-30">
+          <Tooltip label={badge.label} position="bottom">
+            <span
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-full shadow-lg",
+                badge.iconBg
+              )}
+            >
+              <badge.icon className="h-4 w-4" strokeWidth={2.5} />
+            </span>
+          </Tooltip>
+        </span>
+      )}
+
       <div
         className={cn(
           "glass relative z-10 flex h-full flex-col overflow-hidden rounded-2xl border transition-colors duration-200",
           badge ? "border-white/10" : "border-white/[0.08]"
         )}
       >
-        {/* Badge icon -- ALWAYS visible top-right, expanded or not.
-            IMPORTANT: the positioning wrapper is OUTSIDE Tooltip, so
-            Tooltip only handles the hover popup, not layout position. */}
-        {badge && (
-          <span className="absolute right-3 top-3 z-20">
-            <Tooltip label={badge.label}>
-              <span
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-full shadow-lg",
-                  badge.iconBg
-                )}
-              >
-                <badge.icon className="h-4 w-4" strokeWidth={2.5} />
-              </span>
-            </Tooltip>
-          </span>
-        )}
-
         {/* Photo -- image itself is clipped/rounded by an inner wrapper,
             NOT the outer one, so achievement icons hanging below the
             photo edge are never cut off. */}
@@ -101,19 +101,20 @@ export function TeamMemberCard({ member, index }: TeamMemberCardProps) {
           {hasAchievements && !isExpanded && (
             <div className="absolute -bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1.5">
               {member.achievements.map((ach, i) => (
-                <motion.div key={i} layoutId={`ach-${member.id}-${i}`}>
-                  <Tooltip label={ach.title}>
-                    <span className="glass-strong flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-white/10">
-                      <Image
-                        src={ach.icon}
-                        alt={ach.title}
-                        width={20}
-                        height={20}
-                        className="h-5 w-5 object-contain"
-                      />
-                    </span>
-                  </Tooltip>
-                </motion.div>
+                <Tooltip key={i} label={ach.title}>
+                  <motion.span
+                    layoutId={`ach-${member.id}-${i}`}
+                    className="glass-strong flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-white/10"
+                  >
+                    <Image
+                      src={ach.icon}
+                      alt={ach.title}
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 object-contain"
+                    />
+                  </motion.span>
+                </Tooltip>
               ))}
             </div>
           )}
@@ -188,19 +189,20 @@ export function TeamMemberCard({ member, index }: TeamMemberCardProps) {
                   <p className="mb-2 text-slate-500">Achievement</p>
                   <div className="flex flex-wrap gap-2">
                     {member.achievements.map((ach, i) => (
-                      <motion.div key={i} layoutId={`ach-${member.id}-${i}`}>
-                        <Tooltip label={ach.title}>
-                          <span className="glass flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/10">
-                            <Image
-                              src={ach.icon}
-                              alt={ach.title}
-                              width={22}
-                              height={22}
-                              className="h-[22px] w-[22px] object-contain"
-                            />
-                          </span>
-                        </Tooltip>
-                      </motion.div>
+                      <Tooltip key={i} label={ach.title}>
+                        <motion.span
+                          layoutId={`ach-${member.id}-${i}`}
+                          className="glass flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/10"
+                        >
+                          <Image
+                            src={ach.icon}
+                            alt={ach.title}
+                            width={22}
+                            height={22}
+                            className="h-[22px] w-[22px] object-contain"
+                          />
+                        </motion.span>
+                      </Tooltip>
                     ))}
                   </div>
                 </div>

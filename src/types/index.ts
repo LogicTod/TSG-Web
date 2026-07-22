@@ -107,7 +107,7 @@ export interface TeamMember {
   birthDate?: string;
   role: string;
   division: string;
-  category: string;
+  categories: string[];
   photo: string;
   socials: Partial<Record<"instagram" | "linkedin" | "email", string>>;
   badge?: TeamBadge;
