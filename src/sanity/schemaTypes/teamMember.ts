@@ -42,14 +42,14 @@ export const teamMember = defineType({
         'Contoh: "Pengurus Inti", "Robotik", "Mekatronika", "Sains", "Multimedia"',
     }),
     defineField({
-      name: "category",
+      name: "categories",
       title: "Kategori / Generasi",
-      type: "reference",
-      to: [{ type: "teamCategory" }],
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "teamCategory" }] }],
       group: "profile",
       description:
-        'Contoh: G10, Creator, atau Mentor. Kalau kategorinya belum ada, buat dulu lewat menu "Kategori / Generasi Tim".',
-      validation: (rule) => rule.required(),
+        'Bisa pilih lebih dari 1, misal anggota G3 yang sekaligus jadi Mentor. Kalau kategorinya belum ada, buat dulu lewat menu "Kategori / Generasi Tim".',
+      validation: (rule) => rule.required().min(1),
     }),
     defineField({
       name: "photo",

@@ -15,7 +15,7 @@ export function TeamPageClient({ categories, members }: TeamPageClientProps) {
   const [activeSlug, setActiveSlug] = useState(categories[0]?.slug ?? "");
 
   const filtered = useMemo(
-    () => members.filter((m) => m.category === activeSlug),
+    () => members.filter((m) => m.categories.includes(activeSlug)),
     [members, activeSlug]
   );
 

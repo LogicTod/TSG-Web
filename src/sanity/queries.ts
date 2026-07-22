@@ -93,7 +93,7 @@ interface SanityTeamMember {
   birthDate?: string;
   role: string;
   division?: string;
-  category: string;
+  categories: string[];
   photo: Image;
   instagram?: string;
   linkedin?: string;
@@ -107,13 +107,14 @@ interface SanityTeamMember {
  * Mengambil semua anggota tim yang sudah di-Publish, diurutkan berdasar
  * field "order". Foto & icon prestasi diresolve jadi URL string di sini
  * (server), sama seperti logo divisi, supaya aman dikirim ke Client
- * Component.
+ * Component. Satu anggota bisa punya lebih dari 1 kategori sekaligus
+ * (misal G3 sekaligus Mentor).
  */
 export async function getTeamMembers(): Promise<TeamMember[]> {
   const data = await client.fetch<SanityTeamMember[]>(
     `*[_type == "teamMember"] | order(order asc) {
       _id, name, nickname, birthDate, role, division,
-      "category": category->slug.current,
+      "categories": categories[]->slug.current,
       photo, instagram, linkedin, email, badge, achievements, featured
     }`
   );
@@ -126,7 +127,7 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
     birthDate: item.birthDate,
     role: item.role,
     division: item.division ?? "",
-    category: item.category ?? "",
+    categories: item.categories ?? [],
     photo: urlForImage(item.photo).width(400).height(500).fit("crop").auto("format").url(),
     socials: {
       ...(item.instagram && { instagram: item.instagram }),
