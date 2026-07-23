@@ -10,6 +10,7 @@ import { siteSettings } from "./siteSettings";
 import { heroContent } from "./heroContent";
 import { whyJoinItem } from "./whyJoinItem";
 import { aboutContent } from "./aboutContent";
+import { uniformShowcase } from "./uniformShowcase";
 
 /**
  * Semua schema tipe konten (Divisi, Prestasi, Tim, Event, dst) didaftarkan
@@ -28,5 +29,6 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     heroContent,
     whyJoinItem,
     aboutContent,
+    uniformShowcase,
   ],
 };

@@ -9,7 +9,7 @@ export const navLinks: NavLink[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Divisions", href: "/divisions" },
-  { label: "Gallery", href: "https://sites.google.com/view/thesmartgeneration/gallery" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Events", href: "/events" },
   { label: "News", href: "https://sites.google.com/view/thesmartgeneration/news" },
   { label: "Team", href: "/team" },
