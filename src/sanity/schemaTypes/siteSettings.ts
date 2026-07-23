@@ -67,6 +67,12 @@ export const siteSettings = defineType({
       type: "string",
     }),
     defineField({
+      name: "officeHours",
+      title: "Jam Operasional (opsional)",
+      type: "string",
+      description: 'Contoh: "Senin - Jumat, 15.00 - 18.00 WIB"',
+    }),
+    defineField({
       name: "mapsEmbedUrl",
       title: "Link Embed Google Maps",
       type: "url",

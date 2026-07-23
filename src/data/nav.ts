@@ -13,5 +13,5 @@ export const navLinks: NavLink[] = [
   { label: "Events", href: "/events" },
   { label: "News", href: "https://sites.google.com/view/thesmartgeneration/news" },
   { label: "Team", href: "/team" },
-  { label: "Contact", href: "https://sites.google.com/view/thesmartgeneration/contact" },
+  { label: "Contact", href: "/contact" },
 ];

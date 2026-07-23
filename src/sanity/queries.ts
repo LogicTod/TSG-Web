@@ -1,6 +1,6 @@
 import { client } from "./client";
 import { urlForImage } from "./image";
-import type { Division, AchievementItem, TeamMember, TeamBadge, TeamCategory, EventItem, GalleryItem, FAQItem, SiteSettings, HeroContent, ProgramItem, AboutContent } from "@/types";
+import type { Division, AchievementItem, TeamMember, TeamBadge, TeamCategory, EventItem, GalleryItem, FAQItem, SiteSettings, HeroContent, ProgramItem, AboutContent, UniformShowcase } from "@/types";
 import type { Image } from "sanity";
 
 interface SanityDivision {
@@ -282,6 +282,7 @@ interface SanitySiteSettings {
   contactEmail: string;
   whatsappNumber: string;
   address: string;
+  officeHours?: string;
   mapsEmbedUrl?: string;
   instagramUrl?: string;
   youtubeUrl?: string;
@@ -315,7 +316,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   const data = await client.fetch<SanitySiteSettings | null>(
     `*[_type == "siteSettings"][0] {
       name, shortName, slogan, description, foundedDate,
-      contactEmail, whatsappNumber, address, mapsEmbedUrl,
+      contactEmail, whatsappNumber, address, officeHours, mapsEmbedUrl,
       instagramUrl, youtubeUrl, logo
     }`
   );
@@ -332,6 +333,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     contactEmail: data.contactEmail,
     whatsappNumber: data.whatsappNumber,
     address: data.address,
+    officeHours: data.officeHours,
     mapsEmbedUrl: data.mapsEmbedUrl ?? "",
     instagramUrl: data.instagramUrl ?? "",
     youtubeUrl: data.youtubeUrl ?? "",
@@ -453,5 +455,34 @@ export async function getAboutContent(): Promise<AboutContent> {
   return {
     vision: data.vision,
     missionItems: data.missionItems ?? [],
+  };
+}
+
+interface SanityUniformShowcase {
+  title: string;
+  frontImage: Image;
+  backImage: Image;
+  rightImage: Image;
+  leftImage: Image;
+}
+
+/**
+ * Mengambil 4 foto preview seragam. Return `null` kalau dokumennya belum
+ * pernah diisi/di-Publish -- halaman /gallery akan otomatis sembunyikan
+ * section ini kalau begitu, bukan error atau tampil kosong.
+ */
+export async function getUniformShowcase(): Promise<UniformShowcase | null> {
+  const data = await client.fetch<SanityUniformShowcase | null>(
+    `*[_type == "uniformShowcase"][0] { title, frontImage, backImage, rightImage, leftImage }`
+  );
+
+  if (!data) return null;
+
+  return {
+    title: data.title,
+    front: urlForImage(data.frontImage).width(900).auto("format").url(),
+    back: urlForImage(data.backImage).width(900).auto("format").url(),
+    right: urlForImage(data.rightImage).width(900).auto("format").url(),
+    left: urlForImage(data.leftImage).width(900).auto("format").url(),
   };
 }
