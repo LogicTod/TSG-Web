@@ -22,6 +22,7 @@ export interface SiteSettings {
   contactEmail: string;
   whatsappNumber: string;
   address: string;
+  officeHours?: string;
   mapsEmbedUrl: string;
   instagramUrl: string;
   youtubeUrl: string;
@@ -132,4 +133,12 @@ export interface HeroContent {
 export interface AboutContent {
   vision: string;
   missionItems: string[];
+}
+
+export interface UniformShowcase {
+  title: string;
+  front: string;
+  back: string;
+  right: string;
+  left: string;
 }
