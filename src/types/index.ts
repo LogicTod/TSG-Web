@@ -142,3 +142,18 @@ export interface UniformShowcase {
   right: string;
   left: string;
 }
+
+export type ProjectStatus = "Selesai" | "Sedang Dikerjakan" | "Akan Datang";
+
+export interface Project {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  coverImage: string;
+  status: ProjectStatus;
+  divisionName?: string;
+  tags: string[];
+  year: number;
+  content?: unknown[];
+}
