@@ -102,12 +102,14 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           />
         </div>
 
-        <p className="mt-8 text-base leading-relaxed text-slate-300">
-          {project.description}
-        </p>
+        <div className="glass mt-8 rounded-2xl border border-white/[0.08] p-6 sm:p-7">
+          <p className="text-base leading-relaxed text-slate-300">
+            {project.description}
+          </p>
+        </div>
 
         {project.content && project.content.length > 0 && (
-          <div className="mt-8">
+          <div className="glass mt-6 rounded-2xl border border-white/[0.08] p-6 sm:p-8">
             <ProjectContent content={project.content} />
           </div>
         )}
