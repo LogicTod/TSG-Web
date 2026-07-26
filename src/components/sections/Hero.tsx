@@ -1,11 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Sparkles } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { useMousePosition } from "@/hooks/useMousePosition";
-import { iconMap } from "@/lib/icon-map";
+import { DivisionOrbitShowcase } from "@/components/sections/DivisionOrbitShowcase";
 import type { HeroContent, Division } from "@/types";
 
 interface HeroProps {
@@ -24,7 +23,6 @@ const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
 
 export function Hero({ content, divisions, foundedYear }: HeroProps) {
   const { containerRef, position } = useMousePosition<HTMLDivElement>();
-  const panelDivisions = divisions.slice(0, 4);
 
   return (
     <section
@@ -115,69 +113,18 @@ export function Hero({ content, divisions, foundedYear }: HeroProps) {
           </motion.div>
         </div>
 
-        {/* Right column: real divisions panel */}
+        {/* Right column: floating division logo showcase */}
         <motion.div
           initial={{ opacity: 0, scale: 0.94 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="relative hidden lg:block"
         >
-          <div className="animate-float glass-strong glow-cyan relative mx-auto max-w-sm rounded-2xl p-6">
-            <div className="mb-5 flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-slate-400">
-                Divisi Kami
-              </span>
-              <span className="flex h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_2px_rgba(34,211,238,0.6)]" />
-            </div>
-
-            <div className="space-y-3">
-              {panelDivisions.map((division, i) => {
-                const Icon = iconMap[division.icon] ?? iconMap.Bot;
-                return (
-                  <motion.div
-                    key={division.id}
-                    initial={{ opacity: 0, x: 12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
-                    className="glass flex items-center gap-3 rounded-xl px-4 py-3"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary/15 text-primary">
-                      {division.logoUrl ? (
-                        <Image
-                          src={division.logoUrl}
-                          alt={division.name}
-                          width={28}
-                          height={28}
-                          className="h-full w-full object-contain p-1"
-                        />
-                      ) : (
-                        <Icon className="h-4 w-4" />
-                      )}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm text-slate-200">
-                        {division.name}
-                      </p>
-                      <p className="truncate text-[11px] text-slate-500">
-                        {division.tagline}
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Small floating accent card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1 }}
-            className="animate-float-slow glass-strong glow-blue absolute -bottom-8 -left-10 rounded-xl px-5 py-4"
-          >
-            <p className="text-2xl font-bold text-white">{divisions.length}</p>
-            <p className="text-xs text-slate-400">Divisions Active</p>
-          </motion.div>
+          <DivisionOrbitShowcase
+            divisions={divisions}
+            mouseX={position.x}
+            mouseY={position.y}
+          />
         </motion.div>
       </div>
     </section>
