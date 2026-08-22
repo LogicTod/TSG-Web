@@ -124,7 +124,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
           <div className="hidden lg:block">
             <Link
               href="https://sites.google.com/view/form-registrasi-tsg/registrasi-tsg"
-              className="glow-cyan inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-semibold text-background transition-transform duration-300 hover:scale-105"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.45)] transition-transform duration-300 hover:scale-105"
             >
               Join TSG
             </Link>
@@ -201,7 +201,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
               <Link
                 href="https://sites.google.com/view/form-registrasi-tsg/registrasi-tsg"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="glow-cyan mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-8 py-3 text-sm font-semibold text-background"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.45)]"
               >
                 Join TSG
               </Link>
