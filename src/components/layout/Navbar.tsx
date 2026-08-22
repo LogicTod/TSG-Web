@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, ChevronDown } from "lucide-react";
 import { navLinks } from "@/data/nav";
 import { cn } from "@/lib/utils";
 import { LogoModal } from "./LogoModal";
@@ -18,9 +18,23 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 24);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 24);
+
+      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+        setIsHidden(true);
+        setIsMobileMenuOpen(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        setIsHidden(false);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -37,8 +51,11 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
     <>
       <motion.header
         initial={{ y: -40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        animate={{
+          y: isHidden ? -120 : 0,
+          opacity: isHidden ? 0 : 1,
+        }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 sm:px-6 sm:pt-6"
       >
         <div
@@ -129,6 +146,23 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
           </button>
         </div>
       </motion.header>
+
+      {/* Floating reveal button when header is hidden on scroll */}
+      <AnimatePresence>
+        {isHidden && !isMobileMenuOpen && (
+          <motion.button
+            initial={{ opacity: 0, y: -20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setIsHidden(false)}
+            aria-label="Tampilkan panel navigasi"
+            className="fixed right-6 top-4 z-40 flex h-11 w-11 items-center justify-center rounded-full glass-strong border border-white/15 text-accent shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-transform hover:scale-110 sm:right-10 sm:top-6"
+          >
+            <ChevronDown className="h-6 w-6 animate-bounce" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Mobile menu overlay */}
       <AnimatePresence>
