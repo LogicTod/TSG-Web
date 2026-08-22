@@ -1,21 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, Award, Globe2, MapPin, Flag, ArrowRight } from "lucide-react";
+import { Trophy, Award, ArrowRight } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { getAchievementCardStyle } from "@/lib/achievement-styles";
 import type { AchievementItem } from "@/types";
 
 interface AchievementsProps {
   achievements: AchievementItem[];
 }
-
-const levelStyles: Record<AchievementItem["level"], { chip: string; icon: typeof Flag }> = {
-  Regional: { chip: "border-slate-300/30 bg-slate-400/15 text-slate-200", icon: MapPin },
-  National: { chip: "border-sky-400/30 bg-sky-500/15 text-sky-300", icon: Flag },
-  International: { chip: "border-purple-400/30 bg-purple-500/15 text-purple-300", icon: Globe2 },
-};
 
 export function Achievements({ achievements }: AchievementsProps) {
   // Stats reflect the FULL history, even though only highlights render below.
@@ -87,10 +82,7 @@ export function Achievements({ achievements }: AchievementsProps) {
         {/* Featured highlights only — full list lives on the detail page */}
         <div className="mt-14 flex flex-wrap items-stretch justify-center gap-5">
           {featured.map((item, index) => {
-            const style = levelStyles[item.level];
-            const isInternational = item.level === "International";
-            const isNational = item.level === "National";
-            const isRegional = item.level === "Regional";
+            const st = getAchievementCardStyle(item.level);
             return (
               <div
                 key={item.id}
@@ -108,51 +100,37 @@ export function Achievements({ achievements }: AchievementsProps) {
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     className={cn(
                       "relative flex h-full flex-col overflow-hidden rounded-2xl p-6 transition-colors duration-200",
-                      isInternational
-                        ? "international-card"
-                        : isNational
-                        ? "national-card"
-                        : isRegional
-                        ? "regional-card"
-                        : "glass border border-white/[0.08] group-hover:border-white/20"
+                      st.cardClass
                     )}
                   >
-                    {isInternational && (
-                      <span className="absolute inset-0 pointer-events-none rounded-2xl border border-purple-300/40 animate-pulse" />
-                    )}
-                    {isNational && (
-                      <span className="absolute inset-0 pointer-events-none rounded-2xl border border-sky-300/40 animate-pulse" />
-                    )}
-                    {isRegional && (
-                      <span className="absolute inset-0 pointer-events-none rounded-2xl border border-slate-300/40 animate-pulse" />
-                    )}
+                    <span className={st.pulseBorderClass} />
 
                     <div className="pointer-events-none absolute inset-0 -z-10 bg-white/5 opacity-0 blur-2xl transition-opacity duration-200 ease-out group-hover:opacity-100" />
 
                     <div className="flex items-start justify-between gap-3">
                       <span className={cn(
                         "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
-                        isInternational ? "bg-purple-500/20 text-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.3)]" : isNational ? "bg-sky-500/20 text-sky-200 shadow-[0_0_15px_rgba(56,189,248,0.3)]" : isRegional ? "bg-slate-500/20 text-slate-200 shadow-[0_0_15px_rgba(148,163,184,0.3)]" : "bg-white/5 text-white"
+                        st.iconBgClass
                       )}>
                         <Award className="h-5 w-5" />
                       </span>
-                      <span className={cn("text-sm font-semibold", isInternational ? "text-purple-300/80" : isNational ? "text-sky-300/80" : isRegional ? "text-slate-300/80" : "text-slate-500")}>
+                      <span className={cn("text-sm font-semibold", st.yearClass)}>
                         {item.year}
                       </span>
                     </div>
 
-                    <h3 className={cn("mt-4 font-display text-base font-semibold leading-snug", isInternational ? "text-purple-100" : isNational ? "text-sky-100" : isRegional ? "text-slate-100" : "text-white")}>
+                    <h3 className={cn("mt-4 font-display text-base font-semibold leading-snug", st.titleClass)}>
                       {item.title}
                     </h3>
-                    <p className={cn("mt-1.5 text-sm", isInternational ? "text-purple-300/70" : isNational ? "text-sky-300/70" : isRegional ? "text-slate-300/70" : "text-slate-500")}>{item.event}</p>
+                    <p className={cn("mt-1.5 text-sm", st.eventClass)}>{item.event}</p>
 
                     <span
                       className={cn(
                         "mt-auto inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 pt-4 text-[11px] font-medium",
-                        style.chip
+                        st.chipClass
                       )}
                     >
-                      <style.icon className="h-3 w-3" />
+                      <st.icon className="h-3 w-3" />
                       {item.level}
                     </span>
                   </motion.div>
