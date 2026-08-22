@@ -13,8 +13,6 @@ interface HeroProps {
   foundedYear: number;
 }
 
-// Fixed, deterministic particle positions to avoid hydration mismatches
-// (Math.random() during render would differ between server and client).
 const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
   left: `${(i * 37) % 100}%`,
   delay: `${(i % 9) * 1.4}s`,
@@ -22,13 +20,28 @@ const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 export function Hero({ content, divisions, foundedYear }: HeroProps) {
-  const { containerRef, position } = useMousePosition<HTMLDivElement>();
+  const { containerRef, position, rawPosition } = useMousePosition<HTMLDivElement>();
 
   return (
     <section
       ref={containerRef}
       className="bg-grid relative flex min-h-screen items-center overflow-hidden px-6 pb-20 pt-36 sm:px-10 lg:px-16"
     >
+      {/* Mouse-following spotlight watermark text "THE SMART GENERATION" */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-15 overflow-hidden"
+        style={{
+          maskImage: `radial-gradient(280px circle at ${rawPosition.x}px ${rawPosition.y}px, black 0%, transparent 100%)`,
+          WebkitMaskImage: `radial-gradient(280px circle at ${rawPosition.x}px ${rawPosition.y}px, black 0%, transparent 100%)`,
+        }}
+      >
+        <div className="absolute inset-0 flex items-center justify-center p-8 text-center select-none">
+          <span className="font-display font-extrabold tracking-tight text-white/[0.08] text-[clamp(2rem,7vw,7rem)] leading-none uppercase">
+            THE SMART GENERATION
+          </span>
+        </div>
+      </div>
+
       {/* Mouse-following glow */}
       <div
         className="pointer-events-none absolute inset-0 -z-10 transition-opacity duration-300"
