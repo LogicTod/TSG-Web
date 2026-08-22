@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState, useRef, MouseEvent } from "react";
 import { EXTERNAL_URLS } from "@/data/url";
 import Link from "next/link";
 import Image from "next/image";
