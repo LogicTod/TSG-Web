@@ -140,16 +140,64 @@
 
 .national-card {
   position: relative;
-  background: linear-gradient(135deg, rgba(226, 232, 240, 0.14) 0%, rgba(148, 163, 184, 0.08) 50%, rgba(203, 213, 225, 0.12) 100%);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(37, 99, 235, 0.12) 50%, rgba(29, 78, 216, 0.15) 100%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(241, 245, 249, 0.3);
-  box-shadow: 0 8px 32px rgba(148, 163, 184, 0.18);
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  box-shadow: 0 8px 32px rgba(56, 189, 248, 0.22);
   overflow: hidden;
   will-change: transform;
 }
 
 .national-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.03) 60%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  animation: shimmer 3.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.national-card::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 1rem;
+  background: conic-gradient(from 0deg at 50% 50%, transparent 0%, transparent 70%, rgba(224, 242, 254, 0.9) 90%, transparent 100%);
+  animation: rotateBeam 5s infinite linear;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.regional-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.14) 0%, rgba(100, 116, 139, 0.08) 50%, rgba(71, 85, 105, 0.12) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(226, 232, 240, 0.3);
+  box-shadow: 0 8px 32px rgba(148, 163, 184, 0.18);
+  overflow: hidden;
+  will-change: transform;
+}
+
+.regional-card::before {
   content: "";
   position: absolute;
   top: 0;
@@ -169,7 +217,7 @@
   pointer-events: none;
 }
 
-.national-card::after {
+.regional-card::after {
   content: "";
   position: absolute;
   top: -2px;
