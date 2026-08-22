@@ -1,8 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CalendarClock } from "lucide-react";
-import { EventCard } from "@/components/ui/EventCard";
+import { EventPreviewTile } from "@/components/events/EventPreviewTile";
+import { EventModal } from "@/components/events/EventModal";
 import { Button } from "@/components/ui/Button";
 import type { EventItem } from "@/types";
 
@@ -11,10 +13,29 @@ interface EventsPreviewProps {
 }
 
 export function EventsPreview({ events }: EventsPreviewProps) {
+  const [selected, setSelected] = useState<EventItem | null>(null);
+
   const upcoming = events
     .filter((e) => e.status === "upcoming")
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 3);
+
+  // Kunci scroll halaman di belakang selagi modal terbuka.
+  useEffect(() => {
+    document.body.style.overflow = selected ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selected]);
+
+  // Tutup modal dengan tombol Esc.
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setSelected(null);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <section className="relative px-6 py-24 sm:px-10 lg:px-16">
@@ -47,7 +68,11 @@ export function EventsPreview({ events }: EventsPreviewProps) {
               key={event.id}
               className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
             >
-              <EventCard event={event} index={index} />
+              <EventPreviewTile
+                event={event}
+                index={index}
+                onClick={() => setSelected(event)}
+              />
             </div>
           ))}
         </div>
@@ -68,6 +93,12 @@ export function EventsPreview({ events }: EventsPreviewProps) {
           </Button>
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {selected && (
+          <EventModal event={selected} onClose={() => setSelected(null)} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
