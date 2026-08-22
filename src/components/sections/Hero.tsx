@@ -35,9 +35,12 @@ export function Hero({ content, divisions, foundedYear }: HeroProps) {
           WebkitMaskImage: `radial-gradient(280px circle at ${rawPosition.x}px ${rawPosition.y}px, black 0%, transparent 100%)`,
         }}
       >
-        <div className="absolute inset-0 flex items-center justify-center p-8 text-center select-none">
-          <span className="font-display font-extrabold tracking-tight text-white/[0.08] text-[clamp(2rem,7vw,7rem)] leading-none uppercase">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center select-none">
+          <span className="font-display font-extrabold tracking-tight text-white/[0.08] text-[clamp(2rem,7vw,7rem)] leading-none uppercase whitespace-nowrap">
             THE SMART GENERATION
+          </span>
+          <span className="mt-3 font-display font-medium tracking-wide text-white/[0.06] text-[clamp(0.85rem,2vw,1.6rem)] leading-none uppercase whitespace-nowrap">
+            Together We Make A Better Future
           </span>
         </div>
       </div>
