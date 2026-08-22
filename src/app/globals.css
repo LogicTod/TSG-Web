@@ -94,6 +94,24 @@
   }
 }
 
+@keyframes orbitBeam {
+  0% {
+    transform: translate(-100%, 0);
+  }
+  25% {
+    transform: translate(100%, -100%);
+  }
+  50% {
+    transform: translate(100%, 100%);
+  }
+  75% {
+    transform: translate(-100%, 100%);
+  }
+  100% {
+    transform: translate(-100%, 0);
+  }
+}
+
 .international-card {
   position: relative;
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.18) 0%, rgba(139, 92, 246, 0.12) 50%, rgba(109, 40, 217, 0.15) 100%);
@@ -105,7 +123,6 @@
   will-change: transform;
 }
 
-/* Shimmer overlay */
 .international-card::before {
   content: "";
   position: absolute;
@@ -126,7 +143,6 @@
   pointer-events: none;
 }
 
-/* Moving border light strip */
 .international-card::after {
   content: "";
   position: absolute;
@@ -138,6 +154,63 @@
   transform: translateX(-100%);
   animation: borderBeamRun 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
+}
+
+.national-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.16) 0%, rgba(234, 179, 8, 0.10) 50%, rgba(202, 138, 4, 0.14) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(253, 224, 71, 0.3);
+  box-shadow: 0 8px 32px rgba(234, 179, 8, 0.18);
+  overflow: hidden;
+  will-change: transform;
+}
+
+.national-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.03) 60%,
+    transparent 100%
+  );
+  transform: translateX(-150%) skewX(-20deg);
+  animation: shimmer 3.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.national-card::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 1rem;
+  background: conic-gradient(from 0deg at 50% 50%, transparent 0%, transparent 70%, rgba(56, 189, 248, 0.9) 90%, transparent 100%);
+  animation: rotateBeam 5s infinite linear;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes rotateBeam {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---------- Base ---------- */
