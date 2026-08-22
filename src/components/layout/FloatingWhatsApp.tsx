@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 
@@ -10,6 +10,7 @@ interface FloatingWhatsAppProps {
 
 export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
   const [showBubble, setShowBubble] = useState(false);
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const waNumber = whatsappNumber.replace(/[^0-9]/g, "");
   const waHref = `https://wa.me/${waNumber}?text=${encodeURIComponent(
@@ -18,15 +19,35 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
 
   useEffect(() => {
     const showTimer = setTimeout(() => setShowBubble(true), 2000);
-    const hideTimer = setTimeout(() => setShowBubble(false), 8000);
+    const initialHideTimer = setTimeout(() => setShowBubble(false), 8000);
     return () => {
       clearTimeout(showTimer);
-      clearTimeout(hideTimer);
+      clearTimeout(initialHideTimer);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
   }, []);
 
+  const handleMouseEnter = () => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    setShowBubble(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      setShowBubble(false);
+    }, 5000);
+  };
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center">
+    <div
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-center"
+    >
       {/* Speech bubble hint */}
       <AnimatePresence>
         {showBubble && (
@@ -43,14 +64,10 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
       </AnimatePresence>
 
       {/* Robot mascot character */}
-      <motion.button
-        type="button"
-        aria-hidden="true"
-        tabIndex={-1}
-        onMouseEnter={() => setShowBubble(true)}
+      <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-auto -mb-3 drop-shadow-[0_10px_20px_rgba(6,182,212,0.35)]"
+        className="pointer-events-auto -mb-3 drop-shadow-[0_10px_20px_rgba(6,182,212,0.35)] cursor-pointer"
       >
         <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
           <defs>
@@ -169,7 +186,7 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
             transition={{ duration: 2.4, repeat: Infinity, delay: 1.1 }}
           />
         </svg>
-      </motion.button>
+      </motion.div>
 
       {/* WhatsApp button */}
       <motion.a
@@ -179,7 +196,6 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
         aria-label="Hubungi TSG lewat WhatsApp"
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
-        onMouseEnter={() => setShowBubble(true)}
         className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_0_30px_-6px_rgba(37,211,102,0.7)]"
       >
         <MessageCircle className="h-6 w-6" fill="white" strokeWidth={0} />
