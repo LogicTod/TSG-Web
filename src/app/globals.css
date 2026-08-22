@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@layer utilities {
+  .gpu-accelerated {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+    will-change: transform, opacity;
+  }
+}
+
 @theme {
   /* ---------- Colors ---------- */
   --color-background: #020817;
