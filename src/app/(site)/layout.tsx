@@ -85,7 +85,7 @@ export default async function SiteLayout({
   ]);
 
   return (
-    <html lang="id" className={`${spaceGrotesk.variable} ${inter.variable}`}>
+    <html lang="id" data-scroll-behavior="smooth" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body className="bg-background font-body antialiased">
         <MouseGuard />
         <IntroLoader />
