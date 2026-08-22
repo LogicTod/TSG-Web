@@ -17,17 +17,12 @@ const TOTAL_DURATION = LAST_WORD_FINISH + HOLD_AFTER_COMPLETE;
 
 export function IntroLoader() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
-
-  // Cek sessionStorage langsung saat inisialisasi state untuk mencegah flash/render frame pertama jika sudah pernah dilihat
-  const [show, setShow] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const isLocalHome = window.location.pathname === "/";
-    if (!isLocalHome) return false;
-    return !sessionStorage.getItem("tsg-intro-seen");
-  });
+  const [mounted, setMounted] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    const isHome = pathname === "/";
     if (!isHome) {
       setShow(false);
       return;
@@ -40,7 +35,7 @@ export function IntroLoader() {
     } else {
       setShow(false);
     }
-  }, [isHome]);
+  }, [pathname]);
 
   useEffect(() => {
     if (!show) return;
@@ -61,7 +56,7 @@ export function IntroLoader() {
     return () => clearTimeout(timer);
   }, [show]);
 
-  if (!show) return null;
+  if (!mounted || !show) return null;
 
   return (
     <AnimatePresence>
