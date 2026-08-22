@@ -19,20 +19,21 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
-  const lastScrollY = useRef(0);
+  lastScrollY = useRef(0); // eslint-disable-line react-hooks/rules-of-hooks
+  const lastScrollYRef = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setIsScrolled(currentScrollY > 24);
 
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+      if (currentScrollY > lastScrollYRef.current && currentScrollY > 80) {
         setIsHidden(true);
         setIsMobileMenuOpen(false);
-      } else if (currentScrollY < lastScrollY.current) {
+      } else if (currentScrollY < lastScrollYRef.current) {
         setIsHidden(false);
       }
-      lastScrollY.current = currentScrollY;
+      lastScrollYRef.current = currentScrollY;
     };
 
     handleScroll();
@@ -68,42 +69,39 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
         >
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => logoUrl && setIsLogoModalOpen(true)}
-              className={cn(
-                "group flex items-center gap-3 text-left focus:outline-none",
-                !logoUrl && "cursor-pointer"
-              )}
-            >
-              {logoUrl ? (
-                <span className="relative flex h-20 w-20 items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                  <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-xl" />
-                  <Image
-                    src={logoUrl}
-                    alt={shortName}
-                    width={80}
-                    height={80}
-                    className="h-full w-full object-contain"
-                    priority
-                  />
-                </span>
-              ) : (
-                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 group-hover:scale-105">
-                  <Zap className="h-5 w-5" strokeWidth={2.5} />
-                  <span className="absolute inset-0 -z-10 rounded-xl bg-primary/40 blur-lg" />
-                </span>
-              )}
-              <span className="font-display text-xl font-semibold tracking-tight text-white">
-                {shortName}
-              </span>
-            </button>
+            {logoUrl ? (
+              <button
+                type="button"
+                onClick={() => setIsLogoModalOpen(true)}
+                className="group relative flex h-20 w-20 items-center justify-center transition-transform duration-300 hover:scale-105 focus:outline-none cursor-pointer"
+              >
+                <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-xl" />
+                <Image
+                  src={logoUrl}
+                  alt={shortName}
+                  width={80}
+                  height={80}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsLogoModalOpen(true)}
+                className="group relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 hover:scale-105 focus:outline-none cursor-pointer"
+              >
+                <Zap className="h-5 w-5" strokeWidth={2.5} />
+                <span className="absolute inset-0 -z-10 rounded-xl bg-primary/40 blur-lg" />
+              </button>
+            )}
+
             <Link
               href="/"
-              className="sr-only"
+              className="font-display text-xl font-semibold tracking-tight text-white transition-colors hover:text-accent"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Home
+              {shortName}
             </Link>
           </div>
 
@@ -200,7 +198,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
 
               <Link
                 href="https://sites.google.com/view/form-registrasi-tsg/registrasi-tsg"
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={() => setIsMobileMenuOpen(false)]}
                 className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.45)]"
               >
                 Join TSG
