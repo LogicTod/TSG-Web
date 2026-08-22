@@ -63,34 +63,36 @@ export function Footer({ divisions, settings }: FooterProps) {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => settings.logoUrl && setIsLogoModalOpen(true)}
-                className={cn(
-                  "group flex items-center gap-2.5 text-left focus:outline-none",
-                  !settings.logoUrl && "cursor-pointer"
-                )}
+              {settings.logoUrl ? (
+                <button
+                  type="button"
+                  onClick={() => setIsLogoModalOpen(true)}
+                  className="group relative flex h-11 w-11 items-center justify-center transition-transform duration-300 group-hover:scale-105 focus:outline-none cursor-pointer"
+                >
+                  <Image
+                    src={settings.logoUrl}
+                    alt={settings.shortName}
+                    width={44}
+                    height={44}
+                    className="h-full w-full object-contain"
+                  />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsLogoModalOpen(true)}
+                  className="group relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 group-hover:scale-105 focus:outline-none cursor-pointer"
+                >
+                  <Zap className="h-5 w-5" strokeWidth={2.5} />
+                </button>
+              )}
+
+              <Link
+                href="/"
+                className="font-display text-lg font-semibold text-white transition-colors hover:text-accent"
               >
-                {settings.logoUrl ? (
-                  <span className="relative flex h-11 w-11 items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                    <Image
-                      src={settings.logoUrl}
-                      alt={settings.shortName}
-                      width={44}
-                      height={44}
-                      className="h-full w-full object-contain"
-                    />
-                  </span>
-                ) : (
-                  <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 group-hover:scale-105">
-                    <Zap className="h-5 w-5" strokeWidth={2.5} />
-                  </span>
-                )}
-                <span className="font-display text-lg font-semibold text-white">
-                  {settings.shortName}
-                </span>
-              </button>
-              <Link href="/" className="sr-only">Home</Link>
+                {settings.shortName}
+              </Link>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">
               {settings.description}
