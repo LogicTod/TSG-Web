@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingWhatsApp } from "@/components/layout/FloatingWhatsApp";
 import { IntroLoader } from "@/components/layout/IntroLoader";
+import { MouseGuard } from "@/components/layout/MouseGuard";
 import { getDivisions, getSiteSettings } from "@/sanity/queries";
 import "../globals.css";
 
@@ -86,6 +87,7 @@ export default async function SiteLayout({
   return (
     <html lang="id" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body className="bg-background font-body antialiased">
+        <MouseGuard />
         <IntroLoader />
         <Navbar shortName={settings.shortName} logoUrl={settings.logoUrl} />
         <main>{children}</main>
