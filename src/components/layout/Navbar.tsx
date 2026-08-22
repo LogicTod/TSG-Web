@@ -157,7 +157,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
             transition={{ duration: 0.3 }}
             onClick={() => setIsHidden(false)}
             aria-label="Tampilkan panel navigasi"
-            className="fixed right-6 top-4 z-40 flex h-11 w-11 items-center justify-center rounded-full glass-strong border border-white/15 text-accent shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-transform hover:scale-110 sm:right-10 sm:top-6"
+            className="fixed left-1/2 top-4 z-40 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full glass-strong border border-white/15 text-accent shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-transform hover:scale-110 sm:top-6"
           >
             <ChevronDown className="h-6 w-6 animate-bounce" />
           </motion.button>
