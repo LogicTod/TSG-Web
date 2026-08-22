@@ -67,13 +67,14 @@ export function Footer({ divisions, settings }: FooterProps) {
                 <button
                   type="button"
                   onClick={() => setIsLogoModalOpen(true)}
-                  className="group relative flex h-11 w-11 items-center justify-center transition-transform duration-300 group-hover:scale-105 focus:outline-none cursor-pointer"
+                  className="group relative flex h-14 w-14 items-center justify-center transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer"
                 >
+                  <span className="absolute inset-0 -z-10 rounded-full bg-primary/20 blur-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <Image
                     src={settings.logoUrl}
                     alt={settings.shortName}
-                    width={44}
-                    height={44}
+                    width={56}
+                    height={56}
                     className="h-full w-full object-contain"
                   />
                 </button>
@@ -81,9 +82,10 @@ export function Footer({ divisions, settings }: FooterProps) {
                 <button
                   type="button"
                   onClick={() => setIsLogoModalOpen(true)}
-                  className="group relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 group-hover:scale-105 focus:outline-none cursor-pointer"
+                  className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shadow-md"
                 >
                   <Zap className="h-5 w-5" strokeWidth={2.5} />
+                  <span className="absolute inset-0 -z-10 rounded-xl bg-primary/40 blur-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 </button>
               )}
 
