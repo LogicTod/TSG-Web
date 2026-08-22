@@ -14,7 +14,7 @@ interface AchievementsProps {
 const levelStyles: Record<AchievementItem["level"], { chip: string; icon: typeof Flag }> = {
   Regional: { chip: "border-blue/20 bg-blue/10 text-blue", icon: MapPin },
   National: { chip: "border-primary/20 bg-primary/10 text-primary", icon: Flag },
-  International: { chip: "border-accent/20 bg-accent/10 text-accent", icon: Globe2 },
+  International: { chip: "border-purple-400/30 bg-purple-500/15 text-purple-300", icon: Globe2 },
 };
 
 export function Achievements({ achievements }: AchievementsProps) {
@@ -88,6 +88,7 @@ export function Achievements({ achievements }: AchievementsProps) {
         <div className="mt-14 flex flex-wrap items-stretch justify-center gap-5">
           {featured.map((item, index) => {
             const style = levelStyles[item.level];
+            const isInternational = item.level === "International";
             return (
               <div
                 key={item.id}
@@ -103,23 +104,35 @@ export function Achievements({ achievements }: AchievementsProps) {
                 >
                   <motion.div
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className="glass relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] p-6 transition-colors duration-200 group-hover:border-white/20"
+                    className={cn(
+                      "relative flex h-full flex-col overflow-hidden rounded-2xl p-6 transition-colors duration-200",
+                      isInternational
+                        ? "international-card"
+                        : "glass border border-white/[0.08] group-hover:border-white/20"
+                    )}
                   >
+                    {isInternational && (
+                      <span className="absolute inset-0 pointer-events-none rounded-2xl border border-purple-300/40 animate-pulse" />
+                    )}
+
                     <div className="pointer-events-none absolute inset-0 -z-10 bg-white/5 opacity-0 blur-2xl transition-opacity duration-200 ease-out group-hover:opacity-100" />
 
                     <div className="flex items-start justify-between gap-3">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white">
+                      <span className={cn(
+                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                        isInternational ? "bg-purple-500/20 text-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.3)]" : "bg-white/5 text-white"
+                      )}>
                         <Award className="h-5 w-5" />
                       </span>
-                      <span className="text-sm font-semibold text-slate-500">
+                      <span className={cn("text-sm font-semibold", isInternational ? "text-purple-300/80" : "text-slate-500")}>
                         {item.year}
                       </span>
                     </div>
 
-                    <h3 className="mt-4 font-display text-base font-semibold leading-snug text-white">
+                    <h3 className={cn("mt-4 font-display text-base font-semibold leading-snug", isInternational ? "text-purple-100" : "text-white")}>
                       {item.title}
                     </h3>
-                    <p className="mt-1.5 text-sm text-slate-500">{item.event}</p>
+                    <p className={cn("mt-1.5 text-sm", isInternational ? "text-purple-300/70" : "text-slate-500")}>{item.event}</p>
 
                     <span
                       className={cn(
