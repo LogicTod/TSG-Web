@@ -3,6 +3,9 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Instagram, Linkedin, Mail } from "lucide-react";
+import { badgeConfig, defaultTeamGlowRgb } from "@/lib/badge-config";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { cn } from "@/lib/utils";
 import type { TeamMember } from "@/types";
 
 interface TeamCardProps {
@@ -22,6 +25,9 @@ export function TeamCard({ member, index }: TeamCardProps) {
     string
   ][];
 
+  const badge = member.badge ? badgeConfig[member.badge] : null;
+  const glowRgb = badge ? badge.glowRgb : defaultTeamGlowRgb;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -29,11 +35,47 @@ export function TeamCard({ member, index }: TeamCardProps) {
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
       whileHover={{ y: -4 }}
-      className="group h-full"
+      className="group relative h-full rounded-2xl"
     >
+      {/* Soft ambient glow behind the card */}
+      <motion.div
+        className="pointer-events-none absolute -inset-3 -z-10 rounded-3xl blur-xl"
+        style={{ backgroundColor: `rgba(${glowRgb},0.35)` }}
+        animate={{ opacity: [0.3, 0.7, 0.3] }}
+        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Rotating "aura" light sweeping around the border */}
+      <div className="pointer-events-none absolute -inset-[2px] -z-10 overflow-hidden rounded-2xl">
+        <motion.div
+          className="absolute inset-[-100%] blur-[3px]"
+          style={{
+            background: `conic-gradient(from 0deg, transparent 0deg, rgba(${glowRgb},0.95) 50deg, transparent 130deg, transparent 360deg)`,
+          }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
+
+      {/* Badge icon if present */}
+      {badge && (
+        <span className="absolute right-3 top-3 z-30">
+          <Tooltip label={badge.label} position="bottom">
+            <span
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-full shadow-lg",
+                badge.iconBg
+              )}
+            >
+              <badge.icon className="h-4 w-4" strokeWidth={2.5} />
+            </span>
+          </Tooltip>
+        </span>
+      )}
+
       <motion.div
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className="glass relative overflow-hidden rounded-2xl border border-white/[0.08] transition-colors duration-200 group-hover:border-accent/40"
+        className="glass relative z-10 overflow-hidden rounded-2xl border border-white/[0.08] transition-colors duration-200 group-hover:border-accent/40 h-full flex flex-col"
       >
         <div className="relative aspect-[4/5] w-full overflow-hidden">
           <Image
@@ -65,7 +107,7 @@ export function TeamCard({ member, index }: TeamCardProps) {
           </div>
         </div>
 
-        <div className="p-4 text-center">
+        <div className="p-4 text-center mt-auto">
           <h3 className="font-display text-base font-semibold text-white">
             {member.name}
           </h3>

@@ -39,3 +39,5 @@ export const badgeConfig: Record<TeamBadge, BadgeConfig> = {
     glowRgb: "203,213,225",
   },
 };
+
+export const defaultTeamGlowRgb = "34,211,238"; // cyan / default theme accent glow
