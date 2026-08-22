@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Zap } from "lucide-react";
 import { navLinks } from "@/data/nav";
 import { cn } from "@/lib/utils";
+import { LogoModal } from "./LogoModal";
 
 interface NavbarProps {
   shortName: string;
@@ -16,6 +17,7 @@ interface NavbarProps {
 export function Navbar({ shortName, logoUrl }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 24);
@@ -25,11 +27,11 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    document.body.style.overflow = isMobileMenuOpen || isLogoModalOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, isLogoModalOpen]);
 
   return (
     <>
@@ -48,33 +50,45 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
           )}
         >
           {/* Logo */}
-          <Link
-            href="/"
-            className="group flex items-center gap-3"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            {logoUrl ? (
-              <span className="relative flex h-20 w-20 items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-xl" />
-                <Image
-                  src={logoUrl}
-                  alt={shortName}
-                  width={80}
-                  height={80}
-                  className="h-full w-full object-contain"
-                  priority
-                />
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => logoUrl && setIsLogoModalOpen(true)}
+              className={cn(
+                "group flex items-center gap-3 text-left focus:outline-none",
+                !logoUrl && "cursor-pointer"
+              )}
+            >
+              {logoUrl ? (
+                <span className="relative flex h-20 w-20 items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                  <span className="absolute inset-0 -z-10 rounded-full bg-primary/30 blur-xl" />
+                  <Image
+                    src={logoUrl}
+                    alt={shortName}
+                    width={80}
+                    height={80}
+                    className="h-full w-full object-contain"
+                    priority
+                  />
+                </span>
+              ) : (
+                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 group-hover:scale-105">
+                  <Zap className="h-5 w-5" strokeWidth={2.5} />
+                  <span className="absolute inset-0 -z-10 rounded-xl bg-primary/40 blur-lg" />
+                </span>
+              )}
+              <span className="font-display text-xl font-semibold tracking-tight text-white">
+                {shortName}
               </span>
-            ) : (
-              <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 group-hover:scale-105">
-                <Zap className="h-5 w-5" strokeWidth={2.5} />
-                <span className="absolute inset-0 -z-10 rounded-xl bg-primary/40 blur-lg" />
-              </span>
-            )}
-            <span className="font-display text-xl font-semibold tracking-tight text-white">
-              {shortName}
-            </span>
-          </Link>
+            </button>
+            <Link
+              href="/"
+              className="sr-only"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+          </div>
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-1 lg:flex">
@@ -159,6 +173,16 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
               </Link>
             </motion.nav>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isLogoModalOpen && logoUrl && (
+          <LogoModal
+            logoUrl={logoUrl}
+            alt={shortName}
+            onClose={() => setIsLogoModalOpen(false)}
+          />
         )}
       </AnimatePresence>
     </>

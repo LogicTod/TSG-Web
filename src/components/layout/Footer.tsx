@@ -1,10 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Zap, Mail, MapPin, MessageCircle, Instagram, Youtube } from "lucide-react";
 import { navLinks } from "@/data/nav";
+import { cn } from "@/lib/utils";
+import { LogoModal } from "./LogoModal";
 import type { Division, SiteSettings } from "@/types";
 
 interface FooterProps {
@@ -14,6 +17,14 @@ interface FooterProps {
 
 export function Footer({ divisions, settings }: FooterProps) {
   const currentYear = new Date().getFullYear();
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = isLogoModalOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isLogoModalOpen]);
 
   // Ikon dipilih di kode (bukan CMS) — cuma URL-nya yang dari Sanity.
   const socialLinks = [
@@ -51,26 +62,36 @@ export function Footer({ divisions, settings }: FooterProps) {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_0.8fr_0.8fr_1fr]">
           {/* Brand */}
           <div>
-            <Link href="/" className="group flex items-center gap-2.5">
-              {settings.logoUrl ? (
-                <span className="relative flex h-11 w-11 items-center justify-center">
-                  <Image
-                    src={settings.logoUrl}
-                    alt={settings.shortName}
-                    width={44}
-                    height={44}
-                    className="h-full w-full object-contain"
-                  />
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => settings.logoUrl && setIsLogoModalOpen(true)}
+                className={cn(
+                  "group flex items-center gap-2.5 text-left focus:outline-none",
+                  !settings.logoUrl && "cursor-pointer"
+                )}
+              >
+                {settings.logoUrl ? (
+                  <span className="relative flex h-11 w-11 items-center justify-center transition-transform duration-300 group-hover:scale-105">
+                    <Image
+                      src={settings.logoUrl}
+                      alt={settings.shortName}
+                      width={44}
+                      height={44}
+                      className="h-full w-full object-contain"
+                    />
+                  </span>
+                ) : (
+                  <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 group-hover:scale-105">
+                    <Zap className="h-5 w-5" strokeWidth={2.5} />
+                  </span>
+                )}
+                <span className="font-display text-lg font-semibold text-white">
+                  {settings.shortName}
                 </span>
-              ) : (
-                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background">
-                  <Zap className="h-5 w-5" strokeWidth={2.5} />
-                </span>
-              )}
-              <span className="font-display text-lg font-semibold text-white">
-                {settings.shortName}
-              </span>
-            </Link>
+              </button>
+              <Link href="/" className="sr-only">Home</Link>
+            </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">
               {settings.description}
             </p>
@@ -175,6 +196,16 @@ export function Footer({ divisions, settings }: FooterProps) {
           <p className="text-xs text-slate-600">{settings.slogan}</p>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {isLogoModalOpen && settings.logoUrl && (
+          <LogoModal
+            logoUrl={settings.logoUrl}
+            alt={settings.shortName}
+            onClose={() => setIsLogoModalOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </footer>
   );
 }
