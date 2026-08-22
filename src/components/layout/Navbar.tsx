@@ -19,7 +19,6 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
-  lastScrollY = useRef(0); // eslint-disable-line react-hooks/rules-of-hooks
   const lastScrollYRef = useRef(0);
 
   useEffect(() => {
@@ -198,7 +197,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
 
               <Link
                 href="https://sites.google.com/view/form-registrasi-tsg/registrasi-tsg"
-                onClick={() => setIsMobileMenuOpen(false)]}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.45)]"
               >
                 Join TSG
