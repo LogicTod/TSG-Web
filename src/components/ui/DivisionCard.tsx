@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import type { MouseEvent } from "react";
 import type { Division } from "@/types";
 import { cn } from "@/lib/utils";
 import { iconMap } from "@/lib/icon-map";
@@ -37,9 +39,17 @@ const colorVariants = {
 } as const;
 
 export function DivisionCard({ division, index }: DivisionCardProps) {
+  const pathname = usePathname();
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   const colors = colorVariants[division.color];
   const Icon = iconMap[division.icon] ?? iconMap.Bot;
+
+  const handleLinkClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (pathname === href) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
     <>
@@ -139,6 +149,7 @@ export function DivisionCard({ division, index }: DivisionCardProps) {
 
           <Link
             href={`/divisions#${division.slug}`}
+            onClick={(e) => handleLinkClick(e, `/divisions#${division.slug}`)}
             className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-white transition-colors duration-200 group-hover:text-accent"
           >
             Selengkapnya
