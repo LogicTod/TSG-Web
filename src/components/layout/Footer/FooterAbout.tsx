@@ -1,0 +1,79 @@
+import Link from "next/link";
+import Image from "next/image";
+import { Zap, Instagram, Youtube, Mail } from "lucide-react";
+import type { SiteSettings } from "@/types";
+
+interface FooterAboutProps {
+  settings: SiteSettings;
+  setIsLogoModalOpen: (open: boolean) => void;
+  handleLinkClick: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
+  socialLinks: { platform: string; label: string; href: string; icon: typeof Mail }[];
+}
+
+export function FooterAbout({
+  settings,
+  setIsLogoModalOpen,
+  handleLinkClick,
+  socialLinks,
+}: FooterAboutProps) {
+  return (
+    <div>
+      <div className="flex items-center gap-2.5">
+        {settings.logoUrl ? (
+          <button
+            type="button"
+            onClick={() => setIsLogoModalOpen(true)}
+            className="group relative flex h-14 w-14 items-center justify-center transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer"
+          >
+            <span className="absolute inset-0 -z-10 rounded-full bg-primary/20 blur-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <Image
+              src={settings.logoUrl}
+              alt={settings.shortName}
+              width={56}
+              height={56}
+              className="h-full w-full object-contain"
+            />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsLogoModalOpen(true)}
+            className="group relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue text-background transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shadow-md"
+          >
+            <Zap className="h-5 w-5" strokeWidth={2.5} />
+            <span className="absolute inset-0 -z-10 rounded-xl bg-primary/40 blur-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          </button>
+        )}
+
+        <Link
+          href="/"
+          onClick={(e) => handleLinkClick(e, "/")}
+          className="font-display text-lg font-semibold text-white transition-colors hover:text-accent"
+        >
+          {settings.shortName}
+        </Link>
+      </div>
+      <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">
+        {settings.description}
+      </p>
+      <p className="mt-4 text-xs text-slate-600">
+        Berdiri sejak {settings.foundedYear}
+      </p>
+
+      <div className="mt-5 flex items-center gap-2">
+        {socialLinks.map((social) => (
+          <a
+            key={social.platform}
+            href={social.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={social.label}
+            className="glass flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:text-accent"
+          >
+            <social.icon className="h-4 w-4" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
