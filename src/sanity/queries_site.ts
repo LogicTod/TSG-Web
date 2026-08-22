@@ -1,4 +1,4 @@
-import { client } from "./client";
+import { smartFetchWithCache } from "./cacheClient";
 import { urlForImage } from "./image";
 import type { FAQItem, SiteSettings, HeroContent, ProgramItem, AboutContent } from "@/types";
 import type { Image } from "sanity";
@@ -10,20 +10,26 @@ interface SanityFAQ {
 }
 
 export async function getFAQs(): Promise<FAQItem[]> {
-  const data = await client.fetch<SanityFAQ[]>(
-    `*[_type == "faq"] | order(order asc) {
-      _id, question, answer
-    }`
-  );
+  const query = `*[_type == "faq"] | order(order asc) {
+    _id, _rev, question, answer
+  }`;
 
-  return data.map((item) => ({
-    id: item._id,
-    question: item.question,
-    answer: item.answer,
-  }));
+  return smartFetchWithCache<FAQItem[]>(
+    "faqs",
+    query,
+    (data: SanityFAQ[]) =>
+      data.map((item) => ({
+        id: item._id,
+        question: item.question,
+        answer: item.answer,
+      })),
+    []
+  );
 }
 
 interface SanitySiteSettings {
+  _id?: string;
+  _rev?: string;
   name: string;
   shortName: string;
   slogan: string;
@@ -57,34 +63,38 @@ const fallbackSiteSettings: SiteSettings = {
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const data = await client.fetch<SanitySiteSettings | null>(
-    `*[_type == "siteSettings"][0] {
-      name, shortName, slogan, description, foundedDate,
-      contactEmail, whatsappNumber, address, officeHours, mapsEmbedUrl,
-      instagramUrl, youtubeUrl, logo
-    }`
+  const query = `*[_type == "siteSettings"][0] {
+    _id, _rev, name, shortName, slogan, description, foundedDate,
+    contactEmail, whatsappNumber, address, officeHours, mapsEmbedUrl,
+    instagramUrl, youtubeUrl, logo
+  }`;
+
+  return smartFetchWithCache<SiteSettings>(
+    "site_settings",
+    query,
+    (data: SanitySiteSettings | null) => {
+      if (!data) return fallbackSiteSettings;
+      return {
+        name: data.name,
+        shortName: data.shortName,
+        slogan: data.slogan,
+        description: data.description,
+        foundedDate: data.foundedDate,
+        foundedYear: new Date(data.foundedDate).getFullYear(),
+        contactEmail: data.contactEmail,
+        whatsappNumber: data.whatsappNumber,
+        address: data.address,
+        officeHours: data.officeHours,
+        mapsEmbedUrl: data.mapsEmbedUrl ?? "",
+        instagramUrl: data.instagramUrl ?? "",
+        youtubeUrl: data.youtubeUrl ?? "",
+        logoUrl: data.logo
+          ? urlForImage(data.logo).width(200).height(200).fit("max").auto("format").url()
+          : undefined,
+      };
+    },
+    fallbackSiteSettings
   );
-
-  if (!data) return fallbackSiteSettings;
-
-  return {
-    name: data.name,
-    shortName: data.shortName,
-    slogan: data.slogan,
-    description: data.description,
-    foundedDate: data.foundedDate,
-    foundedYear: new Date(data.foundedDate).getFullYear(),
-    contactEmail: data.contactEmail,
-    whatsappNumber: data.whatsappNumber,
-    address: data.address,
-    officeHours: data.officeHours,
-    mapsEmbedUrl: data.mapsEmbedUrl ?? "",
-    instagramUrl: data.instagramUrl ?? "",
-    youtubeUrl: data.youtubeUrl ?? "",
-    logoUrl: data.logo
-      ? urlForImage(data.logo).width(200).height(200).fit("max").auto("format").url()
-      : undefined,
-  };
 }
 
 interface SanityHeroStat {
@@ -94,6 +104,8 @@ interface SanityHeroStat {
 }
 
 interface SanityHeroContent {
+  _id?: string;
+  _rev?: string;
   eyebrow: string;
   heading: string;
   headingHighlight: string;
@@ -116,51 +128,62 @@ const fallbackHeroContent: HeroContent = {
 };
 
 export async function getHeroContent(): Promise<HeroContent> {
-  const data = await client.fetch<SanityHeroContent | null>(
-    `*[_type == "heroContent"][0] {
-      eyebrow, heading, headingHighlight, description, stats
-    }`
+  const query = `*[_type == "heroContent"][0] {
+    _id, _rev, eyebrow, heading, headingHighlight, description, stats
+  }`;
+
+  return smartFetchWithCache<HeroContent>(
+    "hero_content",
+    query,
+    (data: SanityHeroContent | null) => {
+      if (!data) return fallbackHeroContent;
+      return {
+        eyebrow: data.eyebrow,
+        heading: data.heading,
+        highlightWord: data.headingHighlight,
+        description: data.description,
+        stats: (data.stats ?? []).map((s, i) => ({
+          id: `stat-${i}`,
+          label: s.label,
+          value: s.value,
+          suffix: s.suffix ?? "",
+        })),
+      };
+    },
+    fallbackHeroContent
   );
-
-  if (!data) return fallbackHeroContent;
-
-  return {
-    eyebrow: data.eyebrow,
-    heading: data.heading,
-    highlightWord: data.headingHighlight,
-    description: data.description,
-    stats: (data.stats ?? []).map((s, i) => ({
-      id: `stat-${i}`,
-      label: s.label,
-      value: s.value,
-      suffix: s.suffix ?? "",
-    })),
-  };
 }
 
 interface SanityWhyJoinItem {
   _id: string;
+  _rev?: string;
   title: string;
   description: string;
   icon: string;
 }
 
 export async function getWhyJoinItems(): Promise<ProgramItem[]> {
-  const data = await client.fetch<SanityWhyJoinItem[]>(
-    `*[_type == "whyJoinItem"] | order(order asc) {
-      _id, title, description, icon
-    }`
-  );
+  const query = `*[_type == "whyJoinItem"] | order(order asc) {
+    _id, _rev, title, description, icon
+  }`;
 
-  return data.map((item) => ({
-    id: item._id,
-    title: item.title,
-    description: item.description,
-    icon: item.icon,
-  }));
+  return smartFetchWithCache<ProgramItem[]>(
+    "why_join_items",
+    query,
+    (data: SanityWhyJoinItem[]) =>
+      (data ?? []).map((item) => ({
+        id: item._id,
+        title: item.title,
+        description: item.description,
+        icon: item.icon,
+      })),
+    []
+  );
 }
 
 interface SanityAboutContent {
+  _id?: string;
+  _rev?: string;
   vision: string;
   missionItems: string[];
 }
@@ -178,14 +201,18 @@ const fallbackAboutContent: AboutContent = {
 };
 
 export async function getAboutContent(): Promise<AboutContent> {
-  const data = await client.fetch<SanityAboutContent | null>(
-    `*[_type == "aboutContent"][0] { vision, missionItems }`
+  const query = `*[_type == "aboutContent"][0] { _id, _rev, vision, missionItems }`;
+
+  return smartFetchWithCache<AboutContent>(
+    "about_content",
+    query,
+    (data: SanityAboutContent | null) => {
+      if (!data) return fallbackAboutContent;
+      return {
+        vision: data.vision,
+        missionItems: data.missionItems ?? [],
+      };
+    },
+    fallbackAboutContent
   );
-
-  if (!data) return fallbackAboutContent;
-
-  return {
-    vision: data.vision,
-    missionItems: data.missionItems ?? [],
-  };
 }
