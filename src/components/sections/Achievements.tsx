@@ -13,7 +13,7 @@ interface AchievementsProps {
 }
 
 export function Achievements({ achievements }: AchievementsProps) {
-  // Stats reflect the FULL history, even though only highlights render below.
+  // Stats reflect the FULL history
   const total = achievements.length;
   const international = achievements.filter((a) => a.level === "International").length;
   const national = achievements.filter((a) => a.level === "National").length;
@@ -29,9 +29,24 @@ export function Achievements({ achievements }: AchievementsProps) {
     { id: "regional", label: "Regional", value: regional, suffix: "" },
   ];
 
-  const featured = achievements
+  // Filter featured items and order them specifically as requested:
+  // National, International, National, Regional, Regional, Regional
+  const featuredRaw = achievements
     .filter((a) => a.featured)
     .sort((a, b) => b.year - a.year);
+
+  const nationals = featuredRaw.filter((a) => a.level === "National");
+  const internationals = featuredRaw.filter((a) => a.level === "International");
+  const regionals = featuredRaw.filter((a) => a.level === "Regional");
+
+  const featured = [
+    nationals[0],
+    internationals[0],
+    nationals[1] || nationals[0],
+    regionals[0],
+    regionals[1] || regionals[0],
+    regionals[2] || regionals[0],
+  ].filter(Boolean);
 
   return (
     <section className="relative px-6 py-24 sm:px-10 lg:px-16">
@@ -59,7 +74,7 @@ export function Achievements({ achievements }: AchievementsProps) {
           </p>
         </motion.div>
 
-        {/* Summary counters — computed from the full 16-item history */}
+        {/* Summary counters */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -79,13 +94,13 @@ export function Achievements({ achievements }: AchievementsProps) {
           ))}
         </motion.div>
 
-        {/* Featured highlights only — full list lives on the detail page */}
+        {/* Featured highlights ordered as requested */}
         <div className="mt-14 flex flex-wrap items-stretch justify-center gap-5">
           {featured.map((item, index) => {
             const st = getAchievementCardStyle(item.level);
             return (
               <div
-                key={item.id}
+                key={`${item.id}-${index}`}
                 className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.834rem)]"
               >
                 <motion.div
