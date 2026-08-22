@@ -12,7 +12,7 @@ interface AchievementsProps {
 }
 
 const levelStyles: Record<AchievementItem["level"], { chip: string; icon: typeof Flag }> = {
-  Regional: { chip: "border-blue/20 bg-blue/10 text-blue", icon: MapPin },
+  Regional: { chip: "border-slate-300/30 bg-slate-400/15 text-slate-200", icon: MapPin },
   National: { chip: "border-sky-400/30 bg-sky-500/15 text-sky-300", icon: Flag },
   International: { chip: "border-purple-400/30 bg-purple-500/15 text-purple-300", icon: Globe2 },
 };
@@ -90,6 +90,7 @@ export function Achievements({ achievements }: AchievementsProps) {
             const style = levelStyles[item.level];
             const isInternational = item.level === "International";
             const isNational = item.level === "National";
+            const isRegional = item.level === "Regional";
             return (
               <div
                 key={item.id}
@@ -111,6 +112,8 @@ export function Achievements({ achievements }: AchievementsProps) {
                         ? "international-card"
                         : isNational
                         ? "national-card"
+                        : isRegional
+                        ? "regional-card"
                         : "glass border border-white/[0.08] group-hover:border-white/20"
                     )}
                   >
@@ -120,25 +123,28 @@ export function Achievements({ achievements }: AchievementsProps) {
                     {isNational && (
                       <span className="absolute inset-0 pointer-events-none rounded-2xl border border-sky-300/40 animate-pulse" />
                     )}
+                    {isRegional && (
+                      <span className="absolute inset-0 pointer-events-none rounded-2xl border border-slate-300/40 animate-pulse" />
+                    )}
 
                     <div className="pointer-events-none absolute inset-0 -z-10 bg-white/5 opacity-0 blur-2xl transition-opacity duration-200 ease-out group-hover:opacity-100" />
 
                     <div className="flex items-start justify-between gap-3">
                       <span className={cn(
                         "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
-                        isInternational ? "bg-purple-500/20 text-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.3)]" : isNational ? "bg-sky-500/20 text-sky-200 shadow-[0_0_15px_rgba(56,189,248,0.3)]" : "bg-white/5 text-white"
+                        isInternational ? "bg-purple-500/20 text-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.3)]" : isNational ? "bg-sky-500/20 text-sky-200 shadow-[0_0_15px_rgba(56,189,248,0.3)]" : isRegional ? "bg-slate-500/20 text-slate-200 shadow-[0_0_15px_rgba(148,163,184,0.3)]" : "bg-white/5 text-white"
                       )}>
                         <Award className="h-5 w-5" />
                       </span>
-                      <span className={cn("text-sm font-semibold", isInternational ? "text-purple-300/80" : isNational ? "text-sky-300/80" : "text-slate-500")}>
+                      <span className={cn("text-sm font-semibold", isInternational ? "text-purple-300/80" : isNational ? "text-sky-300/80" : isRegional ? "text-slate-300/80" : "text-slate-500")}>
                         {item.year}
                       </span>
                     </div>
 
-                    <h3 className={cn("mt-4 font-display text-base font-semibold leading-snug", isInternational ? "text-purple-100" : isNational ? "text-sky-100" : "text-white")}>
+                    <h3 className={cn("mt-4 font-display text-base font-semibold leading-snug", isInternational ? "text-purple-100" : isNational ? "text-sky-100" : isRegional ? "text-slate-100" : "text-white")}>
                       {item.title}
                     </h3>
-                    <p className={cn("mt-1.5 text-sm", isInternational ? "text-purple-300/70" : isNational ? "text-sky-300/70" : "text-slate-500")}>{item.event}</p>
+                    <p className={cn("mt-1.5 text-sm", isInternational ? "text-purple-300/70" : isNational ? "text-sky-300/70" : isRegional ? "text-slate-300/70" : "text-slate-500")}>{item.event}</p>
 
                     <span
                       className={cn(
