@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, MouseEvent } from "react";
+import { EXTERNAL_URLS } from "@/data/url";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -133,7 +133,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
           {/* CTA */}
           <div className="hidden lg:block">
             <Link
-              href="https://sites.google.com/view/form-registrasi-tsg/registrasi-tsg"
+              href={EXTERNAL_URLS.registration}
               className="glow-cyan inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-blue px-5 py-2.5 text-sm font-semibold text-background transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-500 hover:to-indigo-600 hover:text-white hover:shadow-[0_0_40px_-8px_rgba(168,85,247,0.45)] hover:scale-105"
             >
               Join TSG
@@ -209,7 +209,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
               ))}
 
               <Link
-                href="https://sites.google.com/view/form-registrasi-tsg/registrasi-tsg"
+                href={EXTERNAL_URLS.registration}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-[0_0_40px_-8px_rgba(168,85,247,0.45)]"
               >

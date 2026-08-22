@@ -11,9 +11,7 @@ import "../globals.css";
 // Selalu ambil data terbaru dari Sanity, jangan pakai cache halaman.
 export const revalidate = 0;
 
-// URL produksi -- ini detail deployment/struktur, bukan "konten", jadi
-// sengaja tetap konstanta di kode (tidak ada di Sanity).
-const SITE_URL = "https://thesmartgeneration.id";
+import { SITE_URL } from "@/data/url_production";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],

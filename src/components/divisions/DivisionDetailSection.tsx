@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { EXTERNAL_URLS } from "@/data/url";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -172,7 +172,7 @@ export function DivisionDetailSection({ division, index }: DivisionDetailSection
             )}
 
             <Link
-              href="https://sites.google.com/view/form-registrasi-tsg/registrasi-tsg"
+              href={EXTERNAL_URLS.registration}
               className={cn(
                 "mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r px-6 py-3 text-sm font-semibold text-background shadow-lg transition-transform duration-300 hover:scale-105",
                 theme.gradient
