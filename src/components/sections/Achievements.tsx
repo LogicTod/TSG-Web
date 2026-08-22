@@ -5,6 +5,8 @@ interface AchievementsProps {
   achievements: AchievementItem[];
 }
 
-export function Achievements({ achievements }: AchievementsProps) {
+export default function Achievements({ achievements }: AchievementsProps) {
   return <AchievementsLayout achievements={achievements} />;
 }
+
+export { Achievements };
