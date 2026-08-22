@@ -14,10 +14,16 @@ interface AboutAchievementsProps {
 
 const FILTERS = [
   { label: "Semua", value: "all" as const },
-  { label: "Regional", value: "Regional" as const },
-  { label: "Nasional", value: "National" as const },
   { label: "Internasional", value: "International" as const },
+  { label: "Nasional", value: "National" as const },
+  { label: "Regional", value: "Regional" as const },
 ];
+
+const LEVEL_ORDER: Record<AchievementItem["level"], number> = {
+  International: 1,
+  National: 2,
+  Regional: 3,
+};
 
 export function AboutAchievements({ achievements }: AboutAchievementsProps) {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["value"]>("all");
@@ -35,9 +41,16 @@ export function AboutAchievements({ achievements }: AboutAchievementsProps) {
   ];
 
   const filtered = useMemo(() => {
-    const list =
-      filter === "all" ? achievements : achievements.filter((a) => a.level === filter);
-    return [...list].sort((a, b) => b.year - a.year);
+    let list =
+      filter === "all" ? [...achievements] : achievements.filter((a) => a.level === filter);
+
+    return list.sort((a, b) => {
+      // Sort by level priority first (International -> National -> Regional)
+      const orderDiff = LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level];
+      if (orderDiff !== 0) return orderDiff;
+      // Then by year descending
+      return b.year - a.year;
+    });
   }, [achievements, filter]);
 
   return (
