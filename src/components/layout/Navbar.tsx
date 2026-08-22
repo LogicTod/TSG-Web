@@ -68,7 +68,7 @@ export function Navbar({ shortName, logoUrl }: NavbarProps) {
           opacity: isHidden ? 0 : 1,
         }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 sm:px-6 sm:pt-6"
+        className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 sm:px-6 sm:pt-6 gpu-accelerated"
       >
         <div
           className={cn(

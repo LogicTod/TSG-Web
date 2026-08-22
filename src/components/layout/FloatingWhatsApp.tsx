@@ -46,7 +46,7 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="fixed bottom-6 right-6 z-50 flex flex-col items-center"
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-center gpu-accelerated"
     >
       {/* Speech bubble hint */}
       <AnimatePresence>
