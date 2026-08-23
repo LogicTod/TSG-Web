@@ -99,7 +99,7 @@ export function WaterRippleEffect() {
     };
   }, []);
 
-  // High-frequency animation loop
+  // High-frequency animation loop with spaced random gaps
   useEffect(() => {
     let lastTime = performance.now();
 
@@ -113,7 +113,9 @@ export function WaterRippleEffect() {
         setTrailPoints((prev) => {
           const filtered = prev.filter((p) => now - p.timestamp < 2000);
           const last = filtered[filtered.length - 1];
-          if (!last || Math.hypot(last.x - x, last.y - x) > 3) {
+          // Require a larger distance gap (e.g. > 18-30px) + randomized spacing check
+          const randomThreshold = 18 + Math.random() * 15;
+          if (!last || Math.hypot(last.x - x, last.y - y) > randomThreshold) {
             return [...filtered, { x, y, timestamp: now }];
           }
           return filtered;
@@ -177,15 +179,14 @@ export function WaterRippleEffect() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden gpu-accelerated">
-      {/* Ultra-faint, diffused, scattered mist/spray mouse trail */}
+      {/* Faint, scattered, spaced-out water mist trail */}
       {activeTrail.length > 2 && smoothPath && (
         <svg className="absolute inset-0 h-full w-full pointer-events-none">
           <defs>
-            <linearGradient id="diffusedTrailFade" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="spacedMistFade" x1="0%" y1="0%" x2="100%" y2="100%">
               {activeTrail.map((p, idx) => {
                 const age = now - p.timestamp;
-                // Much more transparent / faint (max opacity 0.25)
-                const progress = Math.max(0, Math.min(1, 1 - age / 2000)) * 0.25;
+                const progress = Math.max(0, Math.min(1, 1 - age / 2000)) * 0.22;
                 const offset = `${(idx / (activeTrail.length - 1)) * 100}%`;
                 return (
                   <stop
@@ -197,18 +198,17 @@ export function WaterRippleEffect() {
                 );
               })}
             </linearGradient>
-            {/* Filter to create scattered mist/spray look instead of solid line */}
-            <filter id="scatteredMist" x="-20%" y="-20%" width="140%" height="140%">
+            <filter id="scatteredMistSpaced" x="-25%" y="-25%" width="150%" height="150%">
               <feTurbulence
                 type="fractalNoise"
-                baseFrequency="0.08"
+                baseFrequency="0.06"
                 numOctaves="3"
                 result="noise"
               />
               <feDisplacementMap
                 in="SourceGraphic"
                 in2="noise"
-                scale="12"
+                scale="18"
                 xChannelSelector="R"
                 yChannelSelector="G"
               />
@@ -217,12 +217,12 @@ export function WaterRippleEffect() {
           <path
             d={smoothPath}
             fill="none"
-            stroke="url(#diffusedTrailFade)"
-            strokeWidth="18"
+            stroke="url(#spacedMistFade)"
+            strokeWidth="14"
             strokeLinecap="round"
             strokeLinejoin="round"
-            filter="url(#scatteredMist)"
-            className="gpu-accelerated opacity-80"
+            filter="url(#scatteredMistSpaced)"
+            className="gpu-accelerated opacity-75"
           />
         </svg>
       )}
