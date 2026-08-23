@@ -21,24 +21,27 @@ interface WaterDroplet {
   rotationSpeed: number;
 }
 
-interface Point {
+interface TrailSegment {
+  id: number;
   x: number;
   y: number;
-  timestamp: number;
+  createdAt: number;
+  life: number; // 1.0 -> 0.0
 }
 
 export function WaterRippleEffect() {
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [droplets, setDroplets] = useState<WaterDroplet[]>([]);
-  const [trailPoints, setTrailPoints] = useState<Point[]>([]);
+  const [segments, setSegments] = useState<TrailSegment[]>([]);
 
   const requestRef = useRef<number>(0);
   const dropletsRef = useRef<WaterDroplet[]>([]);
-  const trailRef = useRef<Point[]>([]);
+  const segmentsRef = useRef<TrailSegment[]>([]);
   const mousePosRef = useRef<{ x: number; y: number } | null>(null);
+  const lastSpawnRef = useRef<number>(0);
 
   dropletsRef.current = droplets;
-  trailRef.current = trailPoints;
+  segmentsRef.current = segments;
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -99,7 +102,7 @@ export function WaterRippleEffect() {
     };
   }, []);
 
-  // High-frequency animation loop with spaced random gaps
+  // High-frequency physics & lifecycle loop for buttery smooth fading individual trail particles
   useEffect(() => {
     let lastTime = performance.now();
 
@@ -108,23 +111,33 @@ export function WaterRippleEffect() {
       lastTime = currentTime;
       const now = Date.now();
 
+      // Spawn individual fading mist particles smoothly with random spacing
       if (mousePosRef.current) {
         const { x, y } = mousePosRef.current;
-        setTrailPoints((prev) => {
-          const filtered = prev.filter((p) => now - p.timestamp < 2000);
-          const last = filtered[filtered.length - 1];
-          // Require a larger distance gap (e.g. > 18-30px) + randomized spacing check
-          const randomThreshold = 18 + Math.random() * 15;
-          if (!last || Math.hypot(last.x - x, last.y - y) > randomThreshold) {
-            return [...filtered, { x, y, timestamp: now }];
-          }
-          return filtered;
-        });
-      } else {
-        if (trailRef.current.length > 0) {
-          setTrailPoints((prev) => prev.filter((p) => now - p.timestamp < 2000));
+        if (now - lastSpawnRef.current > 40 + Math.random() * 35) {
+          lastSpawnRef.current = now;
+          setSegments((prev) => [
+            ...prev,
+            {
+              id: now + Math.random(),
+              x: x + (Math.random() - 0.5) * 12,
+              y: y + (Math.random() - 0.5) * 12,
+              createdAt: now,
+              life: 1.0,
+            },
+          ]);
         }
       }
+
+      // Smoothly decrement life of each individual trail segment so fading is independent & silky smooth
+      setSegments((prev) =>
+        prev
+          .map((seg) => ({
+            ...seg,
+            life: seg.life - 0.015 * delta, // fades out smoothly over ~2 seconds
+          }))
+          .filter((seg) => seg.life > 0)
+      );
 
       // Update water droplets physics
       if (dropletsRef.current.length > 0) {
@@ -150,82 +163,29 @@ export function WaterRippleEffect() {
     return () => cancelAnimationFrame(requestRef.current);
   }, []);
 
-  const now = Date.now();
-  const activeTrail = trailPoints.filter((p) => now - p.timestamp < 2000);
-
-  // Smooth Catmull-Rom curve generator
-  const generateSmoothSvgPath = (points: Point[]) => {
-    if (points.length < 2) return "";
-    let path = `M ${points[0].x} ${points[0].y}`;
-
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i === 0 ? i : i - 1];
-      const p1 = points[i];
-      const p2 = points[i + 1];
-      const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
-
-      const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
-      const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-      path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-    }
-
-    return path;
-  };
-
-  const smoothPath = generateSmoothSvgPath(activeTrail);
-
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden gpu-accelerated">
-      {/* Faint, scattered, spaced-out water mist trail */}
-      {activeTrail.length > 2 && smoothPath && (
-        <svg className="absolute inset-0 h-full w-full pointer-events-none">
-          <defs>
-            <linearGradient id="spacedMistFade" x1="0%" y1="0%" x2="100%" y2="100%">
-              {activeTrail.map((p, idx) => {
-                const age = now - p.timestamp;
-                const progress = Math.max(0, Math.min(1, 1 - age / 2000)) * 0.22;
-                const offset = `${(idx / (activeTrail.length - 1)) * 100}%`;
-                return (
-                  <stop
-                    key={idx}
-                    offset={offset}
-                    stopColor="rgba(125, 211, 252, 0.8)"
-                    stopOpacity={progress}
-                  />
-                );
-              })}
-            </linearGradient>
-            <filter id="scatteredMistSpaced" x="-25%" y="-25%" width="150%" height="150%">
-              <feTurbulence
-                type="fractalNoise"
-                baseFrequency="0.06"
-                numOctaves="3"
-                result="noise"
-              />
-              <feDisplacementMap
-                in="SourceGraphic"
-                in2="noise"
-                scale="18"
-                xChannelSelector="R"
-                yChannelSelector="G"
-              />
-            </filter>
-          </defs>
-          <path
-            d={smoothPath}
-            fill="none"
-            stroke="url(#spacedMistFade)"
-            strokeWidth="14"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            filter="url(#scatteredMistSpaced)"
-            className="gpu-accelerated opacity-75"
+      {/* Scattered individual fading mist droplets following the mouse smoothly */}
+      {segments.map((seg) => {
+        const size = 6 + (1 - seg.life) * 12; // expands slightly as it fades
+        const opacity = seg.life * 0.35;     // faint, semi-transparent
+
+        return (
+          <div
+            key={seg.id}
+            className="absolute rounded-full bg-sky-300/80 blur-[2px] gpu-accelerated"
+            style={{
+              left: seg.x,
+              top: seg.y,
+              width: `${size}px`,
+              height: `${size}px`,
+              opacity: opacity,
+              transform: "translate3d(-50%, -50%, 0)",
+              willChange: "transform, opacity",
+            }}
           />
-        </svg>
-      )}
+        );
+      })}
 
       {/* Realistic Water Ripple Rings */}
       {ripples.map((r) => (
