@@ -99,7 +99,7 @@ export function WaterRippleEffect() {
     };
   }, []);
 
-  // High-frequency animation loop for silky smooth sub-pixel interpolation and physics
+  // High-frequency animation loop
   useEffect(() => {
     let lastTime = performance.now();
 
@@ -108,20 +108,17 @@ export function WaterRippleEffect() {
       lastTime = currentTime;
       const now = Date.now();
 
-      // Push current mouse position at every frame for ultra-smooth trajectory
       if (mousePosRef.current) {
         const { x, y } = mousePosRef.current;
         setTrailPoints((prev) => {
           const filtered = prev.filter((p) => now - p.timestamp < 2000);
           const last = filtered[filtered.length - 1];
-          // Only add if moved slightly or time passed to keep curve dense and smooth
-          if (!last || Math.hypot(last.x - x, last.y - x) > 2) {
+          if (!last || Math.hypot(last.x - x, last.y - x) > 3) {
             return [...filtered, { x, y, timestamp: now }];
           }
           return filtered;
         });
       } else {
-        // Clean up expired points if mouse is idle
         if (trailRef.current.length > 0) {
           setTrailPoints((prev) => prev.filter((p) => now - p.timestamp < 2000));
         }
@@ -154,7 +151,7 @@ export function WaterRippleEffect() {
   const now = Date.now();
   const activeTrail = trailPoints.filter((p) => now - p.timestamp < 2000);
 
-  // Generate silky smooth cubic bezier SVG path (Catmull-Rom / Smooth Curve through points)
+  // Smooth Catmull-Rom curve generator
   const generateSmoothSvgPath = (points: Point[]) => {
     if (points.length < 2) return "";
     let path = `M ${points[0].x} ${points[0].y}`;
@@ -165,7 +162,6 @@ export function WaterRippleEffect() {
       const p2 = points[i + 1];
       const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
 
-      // Standard Catmull-Rom to Cubic Bézier conversion
       const cp1x = p1.x + (p2.x - p0.x) / 6;
       const cp1y = p1.y + (p2.y - p0.y) / 6;
       const cp2x = p2.x - (p3.x - p1.x) / 6;
@@ -181,34 +177,52 @@ export function WaterRippleEffect() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden gpu-accelerated">
-      {/* Silky Smooth Curved Mouse Trail with Gradient Fade */}
+      {/* Ultra-faint, diffused, scattered mist/spray mouse trail */}
       {activeTrail.length > 2 && smoothPath && (
         <svg className="absolute inset-0 h-full w-full pointer-events-none">
           <defs>
-            <linearGradient id="smoothTrailFade" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="diffusedTrailFade" x1="0%" y1="0%" x2="100%" y2="100%">
               {activeTrail.map((p, idx) => {
                 const age = now - p.timestamp;
-                const progress = Math.max(0, Math.min(1, 1 - age / 2000));
+                // Much more transparent / faint (max opacity 0.25)
+                const progress = Math.max(0, Math.min(1, 1 - age / 2000)) * 0.25;
                 const offset = `${(idx / (activeTrail.length - 1)) * 100}%`;
                 return (
                   <stop
                     key={idx}
                     offset={offset}
-                    stopColor="rgba(56, 189, 248, 0.65)"
+                    stopColor="rgba(125, 211, 252, 0.8)"
                     stopOpacity={progress}
                   />
                 );
               })}
             </linearGradient>
+            {/* Filter to create scattered mist/spray look instead of solid line */}
+            <filter id="scatteredMist" x="-20%" y="-20%" width="140%" height="140%">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.08"
+                numOctaves="3"
+                result="noise"
+              />
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="noise"
+                scale="12"
+                xChannelSelector="R"
+                yChannelSelector="G"
+              />
+            </filter>
           </defs>
           <path
             d={smoothPath}
             fill="none"
-            stroke="url(#smoothTrailFade)"
-            strokeWidth="4"
+            stroke="url(#diffusedTrailFade)"
+            strokeWidth="18"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="gpu-accelerated drop-shadow-[0_0_12px_rgba(56,189,248,0.8)]"
+            filter="url(#scatteredMist)"
+            className="gpu-accelerated opacity-80"
           />
         </svg>
       )}
