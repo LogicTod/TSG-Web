@@ -35,20 +35,14 @@ export function WaterRippleEffect() {
   const requestRef = useRef<number>(0);
   const dropletsRef = useRef<WaterDroplet[]>([]);
   const trailRef = useRef<Point[]>([]);
+  const mousePosRef = useRef<{ x: number; y: number } | null>(null);
 
   dropletsRef.current = droplets;
   trailRef.current = trailPoints;
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      const now = Date.now();
-      const newPoint: Point = { x: e.clientX, y: e.clientY, timestamp: now };
-
-      // Keep points within 2000ms window
-      setTrailPoints((prev) => {
-        const filtered = prev.filter((p) => now - p.timestamp < 2000);
-        return [...filtered, newPoint];
-      });
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
     };
 
     const handleClick = (e: MouseEvent) => {
@@ -105,7 +99,7 @@ export function WaterRippleEffect() {
     };
   }, []);
 
-  // Hardware-accelerated animation loop
+  // High-frequency animation loop for silky smooth sub-pixel interpolation and physics
   useEffect(() => {
     let lastTime = performance.now();
 
@@ -114,9 +108,23 @@ export function WaterRippleEffect() {
       lastTime = currentTime;
       const now = Date.now();
 
-      // Smoothly filter out expired trail points (> 2000ms)
-      if (trailRef.current.length > 0) {
-        setTrailPoints((prev) => prev.filter((p) => now - p.timestamp < 2000));
+      // Push current mouse position at every frame for ultra-smooth trajectory
+      if (mousePosRef.current) {
+        const { x, y } = mousePosRef.current;
+        setTrailPoints((prev) => {
+          const filtered = prev.filter((p) => now - p.timestamp < 2000);
+          const last = filtered[filtered.length - 1];
+          // Only add if moved slightly or time passed to keep curve dense and smooth
+          if (!last || Math.hypot(last.x - x, last.y - x) > 2) {
+            return [...filtered, { x, y, timestamp: now }];
+          }
+          return filtered;
+        });
+      } else {
+        // Clean up expired points if mouse is idle
+        if (trailRef.current.length > 0) {
+          setTrailPoints((prev) => prev.filter((p) => now - p.timestamp < 2000));
+        }
       }
 
       // Update water droplets physics
@@ -146,13 +154,38 @@ export function WaterRippleEffect() {
   const now = Date.now();
   const activeTrail = trailPoints.filter((p) => now - p.timestamp < 2000);
 
+  // Generate silky smooth cubic bezier SVG path (Catmull-Rom / Smooth Curve through points)
+  const generateSmoothSvgPath = (points: Point[]) => {
+    if (points.length < 2) return "";
+    let path = `M ${points[0].x} ${points[0].y}`;
+
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i === 0 ? i : i - 1];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+
+      // Standard Catmull-Rom to Cubic Bézier conversion
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+      path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+    }
+
+    return path;
+  };
+
+  const smoothPath = generateSmoothSvgPath(activeTrail);
+
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden gpu-accelerated">
-      {/* Mouse Motion Trail with Segment-based Smooth Alpha Fading */}
-      {activeTrail.length > 1 && (
+      {/* Silky Smooth Curved Mouse Trail with Gradient Fade */}
+      {activeTrail.length > 2 && smoothPath && (
         <svg className="absolute inset-0 h-full w-full pointer-events-none">
           <defs>
-            <linearGradient id="trailFade" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="smoothTrailFade" x1="0%" y1="0%" x2="100%" y2="100%">
               {activeTrail.map((p, idx) => {
                 const age = now - p.timestamp;
                 const progress = Math.max(0, Math.min(1, 1 - age / 2000));
@@ -161,7 +194,7 @@ export function WaterRippleEffect() {
                   <stop
                     key={idx}
                     offset={offset}
-                    stopColor="rgba(56, 189, 248, 0.6)"
+                    stopColor="rgba(56, 189, 248, 0.65)"
                     stopOpacity={progress}
                   />
                 );
@@ -169,13 +202,13 @@ export function WaterRippleEffect() {
             </linearGradient>
           </defs>
           <path
-            d={`M ${activeTrail.map((p) => `${p.x} ${p.y}`).join(" L ")}`}
+            d={smoothPath}
             fill="none"
-            stroke="url(#trailFade)"
-            strokeWidth="3.5"
+            stroke="url(#smoothTrailFade)"
+            strokeWidth="4"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="gpu-accelerated drop-shadow-[0_0_10px_rgba(56,189,248,0.7)]"
+            className="gpu-accelerated drop-shadow-[0_0_12px_rgba(56,189,248,0.8)]"
           />
         </svg>
       )}
