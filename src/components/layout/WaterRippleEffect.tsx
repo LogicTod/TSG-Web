@@ -44,7 +44,7 @@ export function WaterRippleEffect() {
       const now = Date.now();
       const newPoint: Point = { x: e.clientX, y: e.clientY, timestamp: now };
 
-      // Append new point and filter out points older than 2 seconds (2000ms)
+      // Keep points within 2000ms window
       setTrailPoints((prev) => {
         const filtered = prev.filter((p) => now - p.timestamp < 2000);
         return [...filtered, newPoint];
@@ -105,7 +105,7 @@ export function WaterRippleEffect() {
     };
   }, []);
 
-  // Hardware-accelerated animation loop for droplets and clearing expired trail points
+  // Hardware-accelerated animation loop
   useEffect(() => {
     let lastTime = performance.now();
 
@@ -114,7 +114,7 @@ export function WaterRippleEffect() {
       lastTime = currentTime;
       const now = Date.now();
 
-      // Update trail points (auto-remove after 2 seconds)
+      // Smoothly filter out expired trail points (> 2000ms)
       if (trailRef.current.length > 0) {
         setTrailPoints((prev) => prev.filter((p) => now - p.timestamp < 2000));
       }
@@ -143,36 +143,39 @@ export function WaterRippleEffect() {
     return () => cancelAnimationFrame(requestRef.current);
   }, []);
 
-  // Generate SVG smooth path from trail points
-  const generateSvgPath = () => {
-    if (trailPoints.length < 2) return "";
-    const now = Date.now();
-    // Filter active points for path rendering
-    const activePoints = trailPoints.filter((p) => now - p.timestamp < 2000);
-    if (activePoints.length < 2) return "";
-
-    let path = `M ${activePoints[0].x} ${activePoints[0].y}`;
-    for (let i = 1; i < activePoints.length; i++) {
-      path += ` L ${activePoints[i].x} ${activePoints[i].y}`;
-    }
-    return path;
-  };
-
-  const currentPath = generateSvgPath();
+  const now = Date.now();
+  const activeTrail = trailPoints.filter((p) => now - p.timestamp < 2000);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden gpu-accelerated">
-      {/* Mouse Motion Trail Line (Sky Blue Semi-Transparent, auto-fades / disappears after 2s) */}
-      {currentPath && (
+      {/* Mouse Motion Trail with Segment-based Smooth Alpha Fading */}
+      {activeTrail.length > 1 && (
         <svg className="absolute inset-0 h-full w-full pointer-events-none">
+          <defs>
+            <linearGradient id="trailFade" x1="0%" y1="0%" x2="100%" y2="100%">
+              {activeTrail.map((p, idx) => {
+                const age = now - p.timestamp;
+                const progress = Math.max(0, Math.min(1, 1 - age / 2000));
+                const offset = `${(idx / (activeTrail.length - 1)) * 100}%`;
+                return (
+                  <stop
+                    key={idx}
+                    offset={offset}
+                    stopColor="rgba(56, 189, 248, 0.6)"
+                    stopOpacity={progress}
+                  />
+                );
+              })}
+            </linearGradient>
+          </defs>
           <path
-            d={currentPath}
+            d={`M ${activeTrail.map((p) => `${p.x} ${p.y}`).join(" L ")}`}
             fill="none"
-            stroke="rgba(56, 189, 248, 0.45)"
-            strokeWidth="3"
+            stroke="url(#trailFade)"
+            strokeWidth="3.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="gpu-accelerated drop-shadow-[0_0_8px_rgba(56,189,248,0.6)] transition-opacity duration-500"
+            className="gpu-accelerated drop-shadow-[0_0_10px_rgba(56,189,248,0.7)]"
           />
         </svg>
       )}
