@@ -54,13 +54,12 @@ export function WaterRippleEffect() {
       mousePosRef.current = currentPos;
       isMovingRef.current = true;
 
-      // Reset inactivity stop timer
       if (stopTimeoutRef.current) {
         clearTimeout(stopTimeoutRef.current);
       }
       stopTimeoutRef.current = setTimeout(() => {
         isMovingRef.current = false;
-      }, 100); // 100ms without movement considers mouse stopped
+      }, 100);
     };
 
     const handleMouseDown = () => {
@@ -76,40 +75,39 @@ export function WaterRippleEffect() {
       const y = e.clientY;
       const newId = Date.now();
 
-      // Add ripple effect
+      // Add ripple effect (smoother, slightly slower expansion duration)
       setRipples((prev) => [...prev, { id: newId, x, y }]);
       setTimeout(() => {
         setRipples((prev) => prev.filter((r) => r.id !== newId));
-      }, 1200);
+      }, 1600);
 
-      // Realistic stone splash physics
+      // Lebih sedikit, lebih halus, tidak terlalu cepat, dan tidak tiba-tiba muncul (soft grace entry)
       const splashColors = [
-        "rgba(186, 230, 253, 0.95)",
-        "rgba(56, 189, 248, 0.9)",
-        "rgba(14, 165, 233, 0.85)",
-        "rgba(199, 210, 254, 0.8)",
-        "rgba(255, 255, 255, 1)",
+        "rgba(186, 230, 253, 0.85)",
+        "rgba(56, 189, 248, 0.75)",
+        "rgba(14, 165, 233, 0.7)",
+        "rgba(199, 210, 254, 0.65)",
       ];
 
       const newDroplets: WaterDroplet[] = [];
-      const particleCount = 20 + Math.floor(Math.random() * 8);
+      const particleCount = 8 + Math.floor(Math.random() * 4); // Dikurangi jumlahnya agar lebih sedikit & rapi
 
       for (let i = 0; i < particleCount; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 1.5 + Math.random() * 7.5;
-        const upwardBias = -2.5 - Math.random() * 4.0;
+        const speed = 0.8 + Math.random() * 3.5; // Kecepatan lebih lembut/tidak terlalu cepat
+        const upwardBias = -1.5 - Math.random() * 2.0;
 
         newDroplets.push({
           id: newId + i + 1,
           x,
           y,
           vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * (speed * 0.6) + upwardBias,
-          size: 2 + Math.random() * 4.5,
+          vy: Math.sin(angle) * (speed * 0.5) + upwardBias,
+          size: 2 + Math.random() * 3.5,
           color: splashColors[Math.floor(Math.random() * splashColors.length)],
-          opacity: 1,
+          opacity: 0, // Mulai dari 0 agar tidak tiba-tiba muncul (smooth fade-in)
           rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 15,
+          rotationSpeed: (Math.random() - 0.5) * 8,
         });
       }
 
@@ -139,7 +137,6 @@ export function WaterRippleEffect() {
       lastTime = currentTime;
       const now = Date.now();
 
-      // Only spawn trail mist if mouse is moving AND mouse is NOT currently held down (clicked)
       const currentPos = mousePosRef.current;
       const hasMoved =
         currentPos &&
@@ -171,7 +168,6 @@ export function WaterRippleEffect() {
         lastMousePosRef.current = { ...currentPos };
       }
 
-      // Smoothly decrement life of existing trail particles (letting existing ones fade naturally)
       setSegments((prev) =>
         prev
           .map((seg) => ({
@@ -181,19 +177,23 @@ export function WaterRippleEffect() {
           .filter((seg) => seg.life > 0)
       );
 
-      // Update water droplets physics
+      // Update water droplets physics with smooth fade-in (opacity ramp up then down)
       if (dropletsRef.current.length > 0) {
         setDroplets((prev) =>
           prev
-            .map((d) => ({
-              ...d,
-              x: d.x + d.vx * delta,
-              y: d.y + d.vy * delta,
-              vy: d.vy + 0.4 * delta,
-              vx: d.vx * 0.97,
-              opacity: d.opacity - 0.025 * delta,
-              rotation: d.rotation + d.rotationSpeed * delta,
-            }))
+            .map((d) => {
+              // Smooth opacity: ramp up to 0.9 in first few frames, then fade out gently
+              const nextOpacity = d.opacity < 0.9 ? d.opacity + 0.12 * delta : d.opacity - 0.018 * delta;
+              return {
+                ...d,
+                x: d.x + d.vx * delta,
+                y: d.y + d.vy * delta,
+                vy: d.vy + 0.22 * delta, // Gravitasi lebih halus
+                vx: d.vx * 0.98,
+                opacity: Math.max(0, nextOpacity),
+                rotation: d.rotation + d.rotationSpeed * delta,
+              };
+            })
             .filter((d) => d.opacity > 0 && d.y < window.innerHeight + 50)
         );
       }
@@ -233,19 +233,21 @@ export function WaterRippleEffect() {
       {ripples.map((r) => (
         <React.Fragment key={r.id}>
           <div
-            className="absolute rounded-full border-2 border-sky-300/90 bg-transparent animate-water-ripple gpu-accelerated"
+            className="absolute rounded-full border-2 border-sky-300/80 bg-transparent animate-water-ripple gpu-accelerated"
             style={{
               left: r.x,
               top: r.y,
               transform: "translate3d(-50%, -50%, 0)",
+              animationDuration: "1.4s",
             }}
           />
           <div
-            className="absolute rounded-full border border-blue-400/70 bg-transparent animate-water-ripple-delayed gpu-accelerated"
+            className="absolute rounded-full border border-blue-400/60 bg-transparent animate-water-ripple-delayed gpu-accelerated"
             style={{
               left: r.x,
               top: r.y,
               transform: "translate3d(-50%, -50%, 0)",
+              animationDuration: "1.6s",
             }}
           />
         </React.Fragment>
@@ -255,7 +257,7 @@ export function WaterRippleEffect() {
       {droplets.map((d) => (
         <div
           key={d.id}
-          className="absolute rounded-full shadow-[0_0_6px_rgba(56,189,248,0.8)] gpu-accelerated"
+          className="absolute rounded-full shadow-[0_0_6px_rgba(56,189,248,0.6)] gpu-accelerated"
           style={{
             left: d.x,
             top: d.y,
@@ -265,6 +267,7 @@ export function WaterRippleEffect() {
             opacity: d.opacity,
             transform: `translate3d(-50%, -50%, 0) rotate(${d.rotation}deg)`,
             willChange: "transform, opacity",
+            transition: "opacity 0.15s ease-out",
           }}
         />
       ))}
