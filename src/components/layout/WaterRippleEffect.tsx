@@ -75,39 +75,38 @@ export function WaterRippleEffect() {
       const y = e.clientY;
       const newId = Date.now();
 
-      // Add ripple effect (smoother, slightly slower expansion duration)
+      // Add single subtle ripple ring
       setRipples((prev) => [...prev, { id: newId, x, y }]);
       setTimeout(() => {
         setRipples((prev) => prev.filter((r) => r.id !== newId));
       }, 1600);
 
-      // Lebih sedikit, lebih halus, tidak terlalu cepat, dan tidak tiba-tiba muncul (soft grace entry)
+      // Jauh lebih sedikit partikel (hanya 4 sampai 6 buah) agar sangat minimalis dan halus
       const splashColors = [
-        "rgba(186, 230, 253, 0.85)",
-        "rgba(56, 189, 248, 0.75)",
-        "rgba(14, 165, 233, 0.7)",
-        "rgba(199, 210, 254, 0.65)",
+        "rgba(186, 230, 253, 0.8)",
+        "rgba(56, 189, 248, 0.7)",
+        "rgba(14, 165, 233, 0.65)",
       ];
 
       const newDroplets: WaterDroplet[] = [];
-      const particleCount = 8 + Math.floor(Math.random() * 4); // Dikurangi jumlahnya agar lebih sedikit & rapi
+      const particleCount = 4 + Math.floor(Math.random() * 3);
 
       for (let i = 0; i < particleCount; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 0.8 + Math.random() * 3.5; // Kecepatan lebih lembut/tidak terlalu cepat
-        const upwardBias = -1.5 - Math.random() * 2.0;
+        const speed = 0.6 + Math.random() * 2.5;
+        const upwardBias = -1.0 - Math.random() * 1.5;
 
         newDroplets.push({
           id: newId + i + 1,
           x,
           y,
           vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * (speed * 0.5) + upwardBias,
-          size: 2 + Math.random() * 3.5,
+          vy: Math.sin(angle) * (speed * 0.4) + upwardBias,
+          size: 2 + Math.random() * 2.5,
           color: splashColors[Math.floor(Math.random() * splashColors.length)],
-          opacity: 0, // Mulai dari 0 agar tidak tiba-tiba muncul (smooth fade-in)
+          opacity: 0,
           rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 8,
+          rotationSpeed: (Math.random() - 0.5) * 6,
         });
       }
 
@@ -177,18 +176,16 @@ export function WaterRippleEffect() {
           .filter((seg) => seg.life > 0)
       );
 
-      // Update water droplets physics with smooth fade-in (opacity ramp up then down)
       if (dropletsRef.current.length > 0) {
         setDroplets((prev) =>
           prev
             .map((d) => {
-              // Smooth opacity: ramp up to 0.9 in first few frames, then fade out gently
-              const nextOpacity = d.opacity < 0.9 ? d.opacity + 0.12 * delta : d.opacity - 0.018 * delta;
+              const nextOpacity = d.opacity < 0.8 ? d.opacity + 0.1 * delta : d.opacity - 0.015 * delta;
               return {
                 ...d,
                 x: d.x + d.vx * delta,
                 y: d.y + d.vy * delta,
-                vy: d.vy + 0.22 * delta, // Gravitasi lebih halus
+                vy: d.vy + 0.18 * delta,
                 vx: d.vx * 0.98,
                 opacity: Math.max(0, nextOpacity),
                 rotation: d.rotation + d.rotationSpeed * delta,
@@ -238,16 +235,7 @@ export function WaterRippleEffect() {
               left: r.x,
               top: r.y,
               transform: "translate3d(-50%, -50%, 0)",
-              animationDuration: "1.4s",
-            }}
-          />
-          <div
-            className="absolute rounded-full border border-blue-400/60 bg-transparent animate-water-ripple-delayed gpu-accelerated"
-            style={{
-              left: r.x,
-              top: r.y,
-              transform: "translate3d(-50%, -50%, 0)",
-              animationDuration: "1.6s",
+              animationDuration: "1.5s",
             }}
           />
         </React.Fragment>
@@ -257,7 +245,7 @@ export function WaterRippleEffect() {
       {droplets.map((d) => (
         <div
           key={d.id}
-          className="absolute rounded-full shadow-[0_0_6px_rgba(56,189,248,0.6)] gpu-accelerated"
+          className="absolute rounded-full shadow-[0_0_4px_rgba(56,189,248,0.5)] gpu-accelerated"
           style={{
             left: d.x,
             top: d.y,
