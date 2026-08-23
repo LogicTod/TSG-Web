@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { FloatingWhatsApp } from "@/components/layout/FloatingWhatsApp";
 import { IntroLoader } from "@/components/layout/IntroLoader";
 import { MouseGuard } from "@/components/layout/MouseGuard";
+import { WaterRippleEffect } from "@/components/layout/WaterRippleEffect";
 import { getDivisions, getSiteSettings } from "@/sanity/queries";
 import "../globals.css";
 
@@ -85,6 +86,7 @@ export default async function SiteLayout({
   return (
     <html lang="id" data-scroll-behavior="smooth" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body className="bg-background font-body antialiased">
+        <WaterRippleEffect />
         <MouseGuard />
         <IntroLoader />
         <Navbar shortName={settings.shortName} logoUrl={settings.logoUrl} />
