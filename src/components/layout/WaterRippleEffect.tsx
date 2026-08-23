@@ -121,12 +121,12 @@ export function WaterRippleEffect() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden gpu-accelerated">
-      {/* Realistic Water Ripple Rings */}
+      {/* Realistic Water Ripple Rings (Transparent blue water rings only, no gray box) */}
       {ripples.map((r) => (
         <React.Fragment key={r.id}>
           {/* Primary Ripple Ring */}
           <div
-            className="absolute rounded-full border-2 border-sky-300/90 bg-cyan-500/10 animate-water-ripple gpu-accelerated"
+            className="absolute rounded-full border-2 border-sky-300/90 bg-transparent animate-water-ripple gpu-accelerated"
             style={{
               left: r.x,
               top: r.y,
@@ -135,16 +135,7 @@ export function WaterRippleEffect() {
           />
           {/* Secondary Echo Ripple Ring */}
           <div
-            className="absolute rounded-full border border-blue-400/70 bg-sky-400/5 animate-water-ripple-delayed gpu-accelerated"
-            style={{
-              left: r.x,
-              top: r.y,
-              transform: "translate3d(-50%, -50%, 0)",
-            }}
-          />
-          {/* Impact Splash Crown Core */}
-          <div
-            className="absolute rounded-full bg-white/90 shadow-[0_0_12px_rgba(56,189,248,0.9)] animate-water-center gpu-accelerated"
+            className="absolute rounded-full border border-blue-400/70 bg-transparent animate-water-ripple-delayed gpu-accelerated"
             style={{
               left: r.x,
               top: r.y,
