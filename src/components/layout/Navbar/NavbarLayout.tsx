@@ -1,9 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Zap, Menu, X } from "lucide-react";
-import { navLinks } from "@/data/nav";
 import { EXTERNAL_URLS } from "@/data/url";
 import { cn } from "@/lib/utils";
+import { InteractiveNav } from "./InteractiveNav";
 
 interface NavbarLayoutProps {
   shortName: string;
@@ -72,18 +72,7 @@ export function NavbarLayout({
       </div>
 
       {/* Desktop nav */}
-      <nav className="hidden items-center gap-1 lg:flex">
-        {navLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            onClick={(e) => handleNavClick(e, link.href)}
-            className="rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition-colors duration-200 hover:bg-white/5 hover:text-white"
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+      <InteractiveNav handleNavClick={handleNavClick} />
 
       {/* CTA */}
       <div className="hidden lg:block">
