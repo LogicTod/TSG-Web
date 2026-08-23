@@ -37,15 +37,38 @@ export function WaterRippleEffect() {
   const requestRef = useRef<number>(0);
   const dropletsRef = useRef<WaterDroplet[]>([]);
   const segmentsRef = useRef<TrailSegment[]>([]);
+  
   const mousePosRef = useRef<{ x: number; y: number } | null>(null);
+  const lastMousePosRef = useRef<{ x: number; y: number } | null>(null);
   const lastSpawnRef = useRef<number>(0);
+  const isMouseDownRef = useRef<boolean>(false);
+  const isMovingRef = useRef<boolean>(false);
+  const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   dropletsRef.current = droplets;
   segmentsRef.current = segments;
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      mousePosRef.current = { x: e.clientX, y: e.clientY };
+      const currentPos = { x: e.clientX, y: e.clientY };
+      mousePosRef.current = currentPos;
+      isMovingRef.current = true;
+
+      // Reset inactivity stop timer
+      if (stopTimeoutRef.current) {
+        clearTimeout(stopTimeoutRef.current);
+      }
+      stopTimeoutRef.current = setTimeout(() => {
+        isMovingRef.current = false;
+      }, 100); // 100ms without movement considers mouse stopped
+    };
+
+    const handleMouseDown = () => {
+      isMouseDownRef.current = true;
+    };
+
+    const handleMouseUp = () => {
+      isMouseDownRef.current = false;
     };
 
     const handleClick = (e: MouseEvent) => {
@@ -94,15 +117,20 @@ export function WaterRippleEffect() {
     };
 
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
     window.addEventListener("click", handleClick);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("click", handleClick);
+      if (stopTimeoutRef.current) clearTimeout(stopTimeoutRef.current);
     };
   }, []);
 
-  // High-frequency physics & lifecycle loop for buttery smooth fading individual trail particles
+  // High-frequency physics & lifecycle loop
   useEffect(() => {
     let lastTime = performance.now();
 
@@ -111,17 +139,27 @@ export function WaterRippleEffect() {
       lastTime = currentTime;
       const now = Date.now();
 
-      // Spawn individual fading mist particles smoothly with random spacing
-      if (mousePosRef.current) {
-        const { x, y } = mousePosRef.current;
-        if (now - lastSpawnRef.current > 40 + Math.random() * 35) {
+      // Only spawn trail mist if mouse is moving AND mouse is NOT currently held down (clicked)
+      const currentPos = mousePosRef.current;
+      const hasMoved =
+        currentPos &&
+        lastMousePosRef.current &&
+        (currentPos.x !== lastMousePosRef.current.x || currentPos.y !== lastMousePosRef.current.y);
+
+      if (
+        currentPos &&
+        hasMoved &&
+        isMovingRef.current &&
+        !isMouseDownRef.current
+      ) {
+        if (now - lastSpawnRef.current > 45 + Math.random() * 35) {
           lastSpawnRef.current = now;
           setSegments((prev) => [
             ...prev,
             {
               id: now + Math.random(),
-              x: x + (Math.random() - 0.5) * 12,
-              y: y + (Math.random() - 0.5) * 12,
+              x: currentPos.x + (Math.random() - 0.5) * 12,
+              y: currentPos.y + (Math.random() - 0.5) * 12,
               createdAt: now,
               life: 1.0,
             },
@@ -129,12 +167,16 @@ export function WaterRippleEffect() {
         }
       }
 
-      // Smoothly decrement life of each individual trail segment so fading is independent & silky smooth
+      if (currentPos) {
+        lastMousePosRef.current = { ...currentPos };
+      }
+
+      // Smoothly decrement life of existing trail particles (letting existing ones fade naturally)
       setSegments((prev) =>
         prev
           .map((seg) => ({
             ...seg,
-            life: seg.life - 0.015 * delta, // fades out smoothly over ~2 seconds
+            life: seg.life - 0.015 * delta,
           }))
           .filter((seg) => seg.life > 0)
       );
@@ -165,10 +207,10 @@ export function WaterRippleEffect() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden gpu-accelerated">
-      {/* Scattered individual fading mist droplets following the mouse smoothly */}
+      {/* Existing fading mist particles */}
       {segments.map((seg) => {
-        const size = 6 + (1 - seg.life) * 12; // expands slightly as it fades
-        const opacity = seg.life * 0.35;     // faint, semi-transparent
+        const size = 6 + (1 - seg.life) * 12;
+        const opacity = seg.life * 0.35;
 
         return (
           <div
