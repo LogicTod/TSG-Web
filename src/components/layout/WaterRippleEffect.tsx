@@ -43,6 +43,7 @@ export function WaterRippleEffect() {
   const lastSpawnRef = useRef<number>(0);
   const isMouseDownRef = useRef<boolean>(false);
   const isMovingRef = useRef<boolean>(false);
+  const isOverInteractiveRef = useRef<boolean>(false);
   const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   dropletsRef.current = droplets;
@@ -53,6 +54,15 @@ export function WaterRippleEffect() {
       const currentPos = { x: e.clientX, y: e.clientY };
       mousePosRef.current = currentPos;
       isMovingRef.current = true;
+
+      // Check if mouse is currently over an interactive element
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const interactiveEl = target.closest('a, button, input, select, textarea, [role="button"], [role="link"], [tabindex], label, summary, details');
+        isOverInteractiveRef.current = interactiveEl !== null;
+      } else {
+        isOverInteractiveRef.current = false;
+      }
 
       if (stopTimeoutRef.current) {
         clearTimeout(stopTimeoutRef.current);
@@ -71,6 +81,13 @@ export function WaterRippleEffect() {
     };
 
     const handleClick = (e: MouseEvent) => {
+      // If clicking on interactive element, do not spawn new ripple/droplets
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const interactiveEl = target.closest('a, button, input, select, textarea, [role="button"], [role="link"], [tabindex], label, summary, details');
+        if (interactiveEl !== null) return;
+      }
+
       const x = e.clientX;
       const y = e.clientY;
       const newId = Date.now();
@@ -146,7 +163,8 @@ export function WaterRippleEffect() {
         currentPos &&
         hasMoved &&
         isMovingRef.current &&
-        !isMouseDownRef.current
+        !isMouseDownRef.current &&
+        !isOverInteractiveRef.current
       ) {
         if (now - lastSpawnRef.current > 45 + Math.random() * 35) {
           lastSpawnRef.current = now;
