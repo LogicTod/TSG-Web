@@ -98,6 +98,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             alt={project.title}
             fill
             className="object-cover"
+            sizes="(max-width: 768px) 100vw, 672px"
             priority
           />
         </div>

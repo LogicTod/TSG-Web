@@ -1,24 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, Award, Globe2, MapPin, Flag, ArrowRight } from "lucide-react";
+import { Trophy, Award, ArrowRight } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { getAchievementCardStyle } from "@/lib/achievement-styles";
 import type { AchievementItem } from "@/types";
 
 interface AchievementsProps {
   achievements: AchievementItem[];
 }
 
-const levelStyles: Record<AchievementItem["level"], { chip: string; icon: typeof Flag }> = {
-  Regional: { chip: "border-blue/20 bg-blue/10 text-blue", icon: MapPin },
-  National: { chip: "border-primary/20 bg-primary/10 text-primary", icon: Flag },
-  International: { chip: "border-accent/20 bg-accent/10 text-accent", icon: Globe2 },
-};
-
 export function Achievements({ achievements }: AchievementsProps) {
-  // Stats reflect the FULL history, even though only highlights render below.
+  // Stats reflect the FULL history
   const total = achievements.length;
   const international = achievements.filter((a) => a.level === "International").length;
   const national = achievements.filter((a) => a.level === "National").length;
@@ -34,9 +29,34 @@ export function Achievements({ achievements }: AchievementsProps) {
     { id: "regional", label: "Regional", value: regional, suffix: "" },
   ];
 
-  const featured = achievements
+  // Filter featured items and order them specifically as requested:
+  // National, International, National, Regional, Regional, Regional
+  const featuredRaw = achievements
     .filter((a) => a.featured)
     .sort((a, b) => b.year - a.year);
+
+  const nationals = featuredRaw.filter((a) => a.level === "National");
+  const internationals = featuredRaw.filter((a) => a.level === "International");
+  const regionals = featuredRaw.filter((a) => a.level === "Regional");
+
+  const featured = [
+    nationals[0],
+    internationals[0],
+    nationals[1] || nationals[0],
+    regionals[0],
+    regionals[1] || regionals[0],
+    regionals[2] || regionals[0],
+  ].filter(Boolean);
+
+  // For mobile view, make sure the very first card is International (if available)
+  const mobileFeatured = [...featured];
+  if (internationals[0]) {
+    const intlIndex = mobileFeatured.findIndex((a) => a.id === internationals[0].id);
+    if (intlIndex !== -1) {
+      mobileFeatured.splice(intlIndex, 1);
+    }
+    mobileFeatured.unshift(internationals[0]);
+  }
 
   return (
     <section className="relative px-6 py-24 sm:px-10 lg:px-16">
@@ -64,7 +84,7 @@ export function Achievements({ achievements }: AchievementsProps) {
           </p>
         </motion.div>
 
-        {/* Summary counters — computed from the full 16-item history */}
+        {/* Summary counters */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -84,57 +104,129 @@ export function Achievements({ achievements }: AchievementsProps) {
           ))}
         </motion.div>
 
-        {/* Featured highlights only — full list lives on the detail page */}
-        <div className="mt-14 flex flex-wrap items-stretch justify-center gap-5">
-          {featured.map((item, index) => {
-            const style = levelStyles[item.level];
-            return (
-              <div
-                key={item.id}
-                className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.834rem)]"
-              >
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.5, delay: index * 0.06 }}
-                  whileHover={{ y: -4 }}
-                  className="group h-full"
+        {/* Featured highlights ordered as requested */}
+        <div className="mt-14">
+          {/* Mobile view: first card is International */}
+          <div className="flex flex-wrap items-stretch justify-center gap-5 sm:hidden">
+            {mobileFeatured.map((item, index) => {
+              const st = getAchievementCardStyle(item.level);
+              return (
+                <div
+                  key={`mobile-${item.id}-${index}`}
+                  className="w-full"
                 >
                   <motion.div
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className="glass relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] p-6 transition-colors duration-200 group-hover:border-white/20"
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.5, delay: index * 0.06 }}
+                    whileHover={{ y: -4 }}
+                    className="group h-full"
                   >
-                    <div className="pointer-events-none absolute inset-0 -z-10 bg-white/5 opacity-0 blur-2xl transition-opacity duration-200 ease-out group-hover:opacity-100" />
-
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white">
-                        <Award className="h-5 w-5" />
-                      </span>
-                      <span className="text-sm font-semibold text-slate-500">
-                        {item.year}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-4 font-display text-base font-semibold leading-snug text-white">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1.5 text-sm text-slate-500">{item.event}</p>
-
-                    <span
+                    <motion.div
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
                       className={cn(
-                        "mt-auto inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 pt-4 text-[11px] font-medium",
-                        style.chip
+                        "relative flex h-full flex-col overflow-hidden rounded-2xl p-6 transition-colors duration-200",
+                        st.cardClass
                       )}
                     >
-                      <style.icon className="h-3 w-3" />
-                      {item.level}
-                    </span>
+                      <span className={st.pulseBorderClass} />
+
+                      <div className="pointer-events-none absolute inset-0 -z-10 bg-white/5 opacity-0 blur-2xl transition-opacity duration-200 ease-out group-hover:opacity-100" />
+
+                      <div className="flex items-start justify-between gap-3">
+                        <span className={cn(
+                          "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                          st.iconBgClass
+                        )}>
+                          <Award className="h-5 w-5" />
+                        </span>
+                        <span className={cn("text-sm font-semibold", st.yearClass)}>
+                          {item.year}
+                        </span>
+                      </div>
+
+                      <h3 className={cn("mt-4 font-display text-base font-semibold leading-snug", st.titleClass)}>
+                        {item.title}
+                      </h3>
+                      <p className={cn("mt-1.5 text-sm", st.eventClass)}>{item.event}</p>
+
+                      <span
+                        className={cn(
+                          "mt-auto inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 pt-4 text-[11px] font-medium",
+                          st.chipClass
+                        )}
+                      >
+                        <st.icon className="h-3 w-3" />
+                        {item.level}
+                      </span>
+                    </motion.div>
                   </motion.div>
-                </motion.div>
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop/Tablet view: original order */}
+          <div className="hidden sm:flex flex-wrap items-stretch justify-center gap-5">
+            {featured.map((item, index) => {
+              const st = getAchievementCardStyle(item.level);
+              return (
+                <div
+                  key={`desktop-${item.id}-${index}`}
+                  className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.834rem)]"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.5, delay: index * 0.06 }}
+                    whileHover={{ y: -4 }}
+                    className="group h-full"
+                  >
+                    <motion.div
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      className={cn(
+                        "relative flex h-full flex-col overflow-hidden rounded-2xl p-6 transition-colors duration-200",
+                        st.cardClass
+                      )}
+                    >
+                      <span className={st.pulseBorderClass} />
+
+                      <div className="pointer-events-none absolute inset-0 -z-10 bg-white/5 opacity-0 blur-2xl transition-opacity duration-200 ease-out group-hover:opacity-100" />
+
+                      <div className="flex items-start justify-between gap-3">
+                        <span className={cn(
+                          "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                          st.iconBgClass
+                        )}>
+                          <Award className="h-5 w-5" />
+                        </span>
+                        <span className={cn("text-sm font-semibold", st.yearClass)}>
+                          {item.year}
+                        </span>
+                      </div>
+
+                      <h3 className={cn("mt-4 font-display text-base font-semibold leading-snug", st.titleClass)}>
+                        {item.title}
+                      </h3>
+                      <p className={cn("mt-1.5 text-sm", st.eventClass)}>{item.event}</p>
+
+                      <span
+                        className={cn(
+                          "mt-auto inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 pt-4 text-[11px] font-medium",
+                          st.chipClass
+                        )}
+                      >
+                        <st.icon className="h-3 w-3" />
+                        {item.level}
+                      </span>
+                    </motion.div>
+                  </motion.div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <motion.div
@@ -156,3 +248,5 @@ export function Achievements({ achievements }: AchievementsProps) {
     </section>
   );
 }
+
+export default Achievements;

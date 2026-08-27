@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Instagram, Linkedin, Mail } from "lucide-react";
+import { Mail, Video } from "lucide-react";
+import { FaInstagram } from "react-icons/fa";
+import { badgeConfig } from "@/lib/badge-config";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { cn } from "@/lib/utils";
 import type { TeamMember } from "@/types";
 
 interface TeamCardProps {
@@ -11,8 +15,8 @@ interface TeamCardProps {
 }
 
 const socialIcons = {
-  instagram: Instagram,
-  linkedin: Linkedin,
+  instagram: FaInstagram,
+  linkedin: Video,
   email: Mail,
 } as const;
 
@@ -22,6 +26,8 @@ export function TeamCard({ member, index }: TeamCardProps) {
     string
   ][];
 
+  const badge = member.badge ? badgeConfig[member.badge] : null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -29,13 +35,34 @@ export function TeamCard({ member, index }: TeamCardProps) {
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
       whileHover={{ y: -4 }}
-      className="group h-full"
+      className="group relative h-full rounded-2xl gpu-accelerated"
     >
+      {/* Soft diffused Silver Crystal ambient glow behind the card */}
+      <motion.div
+        className="pointer-events-none absolute -inset-4 -z-10 rounded-3xl blur-2xl gpu-accelerated"
+        style={{ backgroundColor: "rgba(203, 213, 225, 0.3)" }}
+        animate={{ opacity: [0.35, 0.60, 0.35] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Badge icon if present */}
+      {badge && (
+        <span className="absolute right-3 top-3 z-30">
+          <Tooltip label={badge.label} position="bottom">
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900/60 text-slate-200 backdrop-blur-md"
+            >
+              {badge.icon ? <badge.icon className="h-4 w-4" strokeWidth={2.5} /> : null}
+            </span>
+          </Tooltip>
+        </span>
+      )}
+
       <motion.div
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className="glass relative overflow-hidden rounded-2xl border border-white/[0.08] transition-colors duration-200 group-hover:border-accent/40"
+        className="glass relative z-10 overflow-hidden rounded-2xl border border-white/[0.08] transition-colors duration-200 group-hover:border-accent/40 h-full flex flex-col gpu-accelerated"
       >
-        <div className="relative aspect-[4/5] w-full overflow-hidden">
+        <div className="relative aspect-[4/5] w-full overflow-hidden gpu-accelerated">
           <Image
             src={member.photo}
             alt={member.name}
@@ -49,6 +76,7 @@ export function TeamCard({ member, index }: TeamCardProps) {
           <div className="absolute bottom-0 left-0 right-0 flex translate-y-2 items-center justify-center gap-2 p-4 opacity-0 transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:opacity-100">
             {socialEntries.map(([platform, href]) => {
               const Icon = socialIcons[platform];
+              if (!Icon) return null;
               return (
                 <a
                   key={platform}
@@ -65,7 +93,7 @@ export function TeamCard({ member, index }: TeamCardProps) {
           </div>
         </div>
 
-        <div className="p-4 text-center">
+        <div className="p-4 text-center mt-auto">
           <h3 className="font-display text-base font-semibold text-white">
             {member.name}
           </h3>

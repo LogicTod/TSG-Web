@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
+    "dev": "cross-env \"NODE_OPTIONS=--localstorage-file=./storage.json\" next dev --turbopack",
+    "build": "cross-env NODE_OPTIONS=--localstorage-file=./storage.json next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "typegen": "sanity typegen generate"
@@ -16,10 +16,11 @@
     "clsx": "^2.1.1",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.469.0",
-    "next": "^16.0.0",
+    "next": "^16.3.1",
     "next-sanity": "^13.0.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-icons": "^5.7.0",
     "sanity": "^5.30.0",
     "styled-components": "^6.1.13",
     "tailwind-merge": "^2.6.0"
@@ -29,8 +30,9 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "eslint": "^9.17.0",
-    "eslint-config-next": "^16.0.0",
+    "cross-env": "^10.1.0",
+    "eslint": "^10.8.0",
+    "eslint-config-next": "^16.3.1",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.0"
   }

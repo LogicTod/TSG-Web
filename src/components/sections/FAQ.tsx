@@ -48,9 +48,12 @@ export function FAQ({ items }: FAQProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
+                whileHover={{ scale: 1.02 }}
                 className={cn(
-                  "glass overflow-hidden rounded-2xl border transition-colors duration-200",
-                  isOpen ? "border-accent/40" : "border-white/[0.08]"
+                  "overflow-hidden rounded-2xl border transition-all duration-300",
+                  isOpen
+                    ? "border-accent/40 bg-white/[0.08] shadow-[0_8px_30px_rgba(255,255,255,0.06)]"
+                    : "glass border-white/[0.08] hover:bg-white/[0.07] hover:border-white/20"
                 )}
               >
                 <button
@@ -81,7 +84,7 @@ export function FAQ({ items }: FAQProps) {
                   )}
                 >
                   <div className="overflow-hidden">
-                    <p className="px-6 pb-5 text-sm leading-relaxed text-slate-400">
+                    <p className="px-6 pb-5 text-sm leading-relaxed text-slate-300">
                       {item.answer}
                     </p>
                   </div>

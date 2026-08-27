@@ -1,9 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight, Camera, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
 import type { GalleryItem } from "@/types";
 
 interface GalleryPreviewProps {
@@ -11,8 +13,27 @@ interface GalleryPreviewProps {
 }
 
 export function GalleryPreview({ images }: GalleryPreviewProps) {
+  const [selected, setSelected] = useState<GalleryItem | null>(null);
+
   // Home cuma nampilin ringkasan — maksimal 6 foto terbaru.
   const previewImages = images.slice(0, 6);
+
+  // Kunci scroll halaman di belakang selagi lightbox terbuka.
+  useEffect(() => {
+    document.body.style.overflow = selected ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selected]);
+
+  // Tutup lightbox dengan tombol Esc.
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setSelected(null);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <section className="relative px-6 py-24 sm:px-10 lg:px-16">
@@ -47,15 +68,25 @@ export function GalleryPreview({ images }: GalleryPreviewProps) {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mt-14 flex flex-wrap justify-center gap-4"
         >
-          {previewImages.map((item) => (
+          {previewImages.map((item, index) => (
             <div
               key={item.id}
-              className="group relative aspect-[4/5] w-[calc(50%-0.5rem)] overflow-hidden rounded-2xl border border-white/[0.08] sm:w-[calc(33.333%-0.75rem)]"
+              onClick={() => setSelected(item)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelected(item);
+                }
+              }}
+              className="group relative aspect-[4/5] w-[calc(50%-0.5rem)] overflow-hidden rounded-2xl border border-white/[0.08] sm:w-[calc(33.333%-0.75rem)] text-left focus:outline-none cursor-pointer"
             >
               <Image
                 src={item.src}
                 alt={item.alt}
                 fill
+                priority={index === 0}
                 className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
                 sizes="(max-width: 640px) 50vw, 33vw"
               />
@@ -87,6 +118,12 @@ export function GalleryPreview({ images }: GalleryPreviewProps) {
           </Button>
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {selected && (
+          <GalleryLightbox item={selected} onClose={() => setSelected(null)} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

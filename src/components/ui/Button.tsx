@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import type { ReactNode, MouseEvent } from "react";
 import { cn } from "@/lib/utils";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
@@ -29,7 +32,7 @@ type ButtonProps = ButtonAsLink | ButtonAsButton;
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "glow-cyan bg-gradient-to-r from-primary to-accent text-background hover:scale-105",
+    "glow-cyan bg-gradient-to-r from-primary to-accent text-background hover:scale-105 gpu-accelerated",
   secondary:
     "glass border border-white/[0.08] text-white hover:border-accent/40 hover:bg-white/[0.08]",
   ghost: "text-slate-300 hover:text-white hover:bg-white/5",
@@ -50,6 +53,7 @@ export function Button({
   onClick,
   type = "button",
 }: ButtonProps) {
+  const pathname = usePathname();
   const classes = cn(
     "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-300",
     variantStyles[variant],
@@ -57,9 +61,16 @@ export function Button({
     className
   );
 
+  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (href && pathname === href) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   if (href) {
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} onClick={handleClick} className={classes}>
         {children}
         {icon}
       </Link>

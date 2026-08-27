@@ -7,6 +7,8 @@ import { EventsPreview } from "@/components/sections/EventsPreview";
 import { TeamPreview } from "@/components/sections/TeamPreview";
 import { FAQ } from "@/components/sections/FAQ";
 import { Contact } from "@/components/sections/Contact";
+import { ViewportVirtualizer } from "@/components/ui/ViewportVirtualizer";
+import { computeServerCountdown } from "@/lib/server-countdown";
 import {
   getDivisions,
   getAchievements,
@@ -45,6 +47,13 @@ export default async function HomePage() {
     getWhyJoinItems(),
   ]);
 
+  const upcomingEvents = events
+    .filter((e) => e.status === "upcoming")
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3);
+
+  const serverCountdowns = upcomingEvents.map((e) => computeServerCountdown(e.date));
+
   return (
     <>
       <Hero
@@ -52,14 +61,30 @@ export default async function HomePage() {
         divisions={divisions}
         foundedYear={settings.foundedYear}
       />
-      <Divisions divisions={divisions} />
-      <WhyJoin items={whyJoinItems} />
-      <Achievements achievements={achievements} />
-      <GalleryPreview images={galleryImages} />
-      <EventsPreview events={events} />
-      <TeamPreview members={teamMembers} />
-      <FAQ items={faqs} />
-      <Contact settings={settings} />
+      <ViewportVirtualizer id="home-divisions">
+        <Divisions divisions={divisions} />
+      </ViewportVirtualizer>
+      <ViewportVirtualizer id="home-why-join">
+        <WhyJoin items={whyJoinItems} />
+      </ViewportVirtualizer>
+      <ViewportVirtualizer id="home-achievements">
+        <Achievements achievements={achievements} />
+      </ViewportVirtualizer>
+      <ViewportVirtualizer id="home-gallery-preview">
+        <GalleryPreview images={galleryImages} />
+      </ViewportVirtualizer>
+      <ViewportVirtualizer id="home-events-preview">
+        <EventsPreview events={events} serverCountdowns={serverCountdowns} />
+      </ViewportVirtualizer>
+      <ViewportVirtualizer id="home-team-preview">
+        <TeamPreview members={teamMembers} />
+      </ViewportVirtualizer>
+      <ViewportVirtualizer id="home-faq">
+        <FAQ items={faqs} />
+      </ViewportVirtualizer>
+      <ViewportVirtualizer id="home-contact">
+        <Contact settings={settings} />
+      </ViewportVirtualizer>
     </>
   );
 }

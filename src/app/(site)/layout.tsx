@@ -3,16 +3,18 @@ import { Space_Grotesk, Inter } from "next/font/google";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingWhatsApp } from "@/components/layout/FloatingWhatsApp";
+import { ScrollToTopButton } from "@/components/layout/ScrollToTopButton";
 import { IntroLoader } from "@/components/layout/IntroLoader";
+import { MouseGuard } from "@/components/layout/MouseGuard";
+import { WaterRippleEffect } from "@/components/layout/WaterRippleEffect";
+import { RobotProvider } from "@/components/layout/RobotContext";
 import { getDivisions, getSiteSettings } from "@/sanity/queries";
-import "../globals.css";
+import "@/app/globals.css";
 
 // Selalu ambil data terbaru dari Sanity, jangan pakai cache halaman.
 export const revalidate = 0;
 
-// URL produksi -- ini detail deployment/struktur, bukan "konten", jadi
-// sengaja tetap konstanta di kode (tidak ada di Sanity).
-const SITE_URL = "https://thesmartgeneration.id";
+import { SITE_URL } from "@/data/url_production";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -38,6 +40,11 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${settings.shortName}`,
     },
     description: settings.description,
+    icons: settings.logoUrl ? {
+      icon: settings.logoUrl,
+      shortcut: settings.logoUrl,
+      apple: settings.logoUrl,
+    } : undefined,
     keywords: [
       "Robotics Club",
       "Science Club",
@@ -68,7 +75,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#020817",
+  themeColor: "#c084fc", // Purple Lilac
   width: "device-width",
   initialScale: 1,
 };
@@ -84,13 +91,18 @@ export default async function SiteLayout({
   ]);
 
   return (
-    <html lang="id" className={`${spaceGrotesk.variable} ${inter.variable}`}>
+    <html lang="id" data-scroll-behavior="smooth" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body className="bg-background font-body antialiased">
-        <IntroLoader />
-        <Navbar shortName={settings.shortName} logoUrl={settings.logoUrl} />
-        <main>{children}</main>
-        <Footer divisions={divisions} settings={settings} />
-        <FloatingWhatsApp whatsappNumber={settings.whatsappNumber} />
+        <RobotProvider>
+          <WaterRippleEffect />
+          <MouseGuard />
+          <IntroLoader />
+          <Navbar shortName={settings.shortName} logoUrl={settings.logoUrl} />
+          <ScrollToTopButton />
+          <main>{children}</main>
+          <Footer divisions={divisions} settings={settings} />
+          <FloatingWhatsApp whatsappNumber={settings.whatsappNumber} />
+        </RobotProvider>
       </body>
     </html>
   );

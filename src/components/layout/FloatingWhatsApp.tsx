@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle } from "lucide-react";
+import { useRobot } from "./RobotContext";
 
 interface FloatingWhatsAppProps {
   whatsappNumber: string;
@@ -10,6 +11,43 @@ interface FloatingWhatsAppProps {
 
 export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
   const [showBubble, setShowBubble] = useState(false);
+  const [isJumping, setIsJumping] = useState(false);
+  const [shouldStop, setShouldStop] = useState(false);
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const { isExcited } = useRobot();
+
+  // Eye tracking state
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      const dx = e.clientX - centerX;
+      const dy = e.clientY - centerY;
+      
+      const maxOffset = 3.5;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance === 0) {
+        setMousePos({ x: 0, y: 0 });
+        return;
+      }
+      const scale = Math.min(distance, 150) / 150;
+      const angle = Math.atan2(dy, dx);
+      
+      setMousePos({
+        x: Math.cos(angle) * maxOffset * scale,
+        y: Math.sin(angle) * maxOffset * scale,
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   const waNumber = whatsappNumber.replace(/[^0-9]/g, "");
   const waHref = `https://wa.me/${waNumber}?text=${encodeURIComponent(
@@ -18,15 +56,46 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
 
   useEffect(() => {
     const showTimer = setTimeout(() => setShowBubble(true), 2000);
-    const hideTimer = setTimeout(() => setShowBubble(false), 8000);
+    const initialHideTimer = setTimeout(() => setShowBubble(false), 8000);
     return () => {
       clearTimeout(showTimer);
-      clearTimeout(hideTimer);
+      clearTimeout(initialHideTimer);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
   }, []);
 
+  const handleMouseEnter = () => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    setShowBubble(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      setShowBubble(false);
+    }, 5000);
+  };
+
+  const handleRobotClick = () => {
+    if (isJumping) return;
+    setIsJumping(true);
+    setTimeout(() => {
+      setIsJumping(false);
+    }, 600);
+  };
+
+  const activeJumping = isJumping || isExcited;
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center">
+    <div
+      ref={containerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-center gpu-accelerated"
+    >
       {/* Speech bubble hint */}
       <AnimatePresence>
         {showBubble && (
@@ -43,14 +112,22 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
       </AnimatePresence>
 
       {/* Robot mascot character */}
-      <motion.button
-        type="button"
-        aria-hidden="true"
-        tabIndex={-1}
-        onMouseEnter={() => setShowBubble(true)}
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-auto -mb-3 drop-shadow-[0_10px_20px_rgba(6,182,212,0.35)]"
+      <motion.div
+        onClick={handleRobotClick}
+        animate={
+          activeJumping
+            ? { y: [0, -40, 0], scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }
+            : { y: [0, -10, 0], scale: 1, rotate: 0 }
+        }
+        transition={
+          activeJumping
+            ? { duration: 0.45, repeat: isExcited && !shouldStop ? Infinity : 0, ease: "easeInOut", onRepeat: () => { if (!isExcited) setShouldStop(true); } }
+            : { duration: 2.8, repeat: Infinity, ease: "easeInOut" }
+        }
+        onAnimationComplete={() => {
+          if (!isExcited) setShouldStop(false);
+        }}
+        className="pointer-events-auto -mb-3 drop-shadow-[0_10px_20px_rgba(6,182,212,0.35)] cursor-pointer"
       >
         <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
           <defs>
@@ -108,29 +185,31 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
           {/* Face plate */}
           <rect x="29" y="32" width="42" height="30" rx="14" fill="#050B18" />
 
-          {/* Eyes */}
-          <motion.rect
-            x="37"
-            y="43"
-            width="8"
-            height="8"
-            rx="4"
-            fill="#22D3EE"
-            animate={{ scaleY: [1, 0.15, 1] }}
-            transition={{ duration: 3.4, repeat: Infinity, repeatDelay: 1.6 }}
-            style={{ transformOrigin: "41px 47px" }}
-          />
-          <motion.rect
-            x="55"
-            y="43"
-            width="8"
-            height="8"
-            rx="4"
-            fill="#22D3EE"
-            animate={{ scaleY: [1, 0.15, 1] }}
-            transition={{ duration: 3.4, repeat: Infinity, repeatDelay: 1.6 }}
-            style={{ transformOrigin: "59px 47px" }}
-          />
+          {/* Eyes with tracking */}
+          <g transform={`translate(${mousePos.x}, ${mousePos.y})`}>
+            <motion.rect
+              x="37"
+              y="43"
+              width="8"
+              height="8"
+              rx="4"
+              fill="#22D3EE"
+              animate={{ scaleY: [1, 0.15, 1] }}
+              transition={{ duration: 3.4, repeat: Infinity, repeatDelay: 1.6 }}
+              style={{ transformOrigin: "41px 47px" }}
+            />
+            <motion.rect
+              x="55"
+              y="43"
+              width="8"
+              height="8"
+              rx="4"
+              fill="#22D3EE"
+              animate={{ scaleY: [1, 0.15, 1] }}
+              transition={{ duration: 3.4, repeat: Infinity, repeatDelay: 1.6 }}
+              style={{ transformOrigin: "59px 47px" }}
+            />
+          </g>
 
           {/* Smile */}
           <path
@@ -169,7 +248,7 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
             transition={{ duration: 2.4, repeat: Infinity, delay: 1.1 }}
           />
         </svg>
-      </motion.button>
+      </motion.div>
 
       {/* WhatsApp button */}
       <motion.a
@@ -179,8 +258,17 @@ export function FloatingWhatsApp({ whatsappNumber }: FloatingWhatsAppProps) {
         aria-label="Hubungi TSG lewat WhatsApp"
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
-        onMouseEnter={() => setShowBubble(true)}
-        className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_0_30px_-6px_rgba(37,211,102,0.7)]"
+        animate={
+          activeJumping
+            ? { y: [0, 0, 0, 9, 0], scaleY: [1, 1, 1, 0.88, 1] }
+            : { y: 0, scaleY: 1 }
+        }
+        transition={
+          activeJumping
+            ? { duration: 0.45, repeat: isExcited ? Infinity : 0, times: [0, 0.3, 0.7, 0.85, 1], ease: "easeInOut" }
+            : { duration: 0.3 }
+        }
+        className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_0_30px_-6px_rgba(37,211,102,0.7)] origin-bottom"
       >
         <MessageCircle className="h-6 w-6" fill="white" strokeWidth={0} />
       </motion.a>
